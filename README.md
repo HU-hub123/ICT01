@@ -30,7 +30,32 @@
 
 - 调研笔记：[versions/v0.1.0-需求对齐/docs/01-调研笔记-观猹与认知脚手架.md](versions/v0.1.0-需求对齐/docs/01-调研笔记-观猹与认知脚手架.md)
 - PRD 草案：[versions/v0.1.0-需求对齐/docs/02-PRD草案-v0.1-需求对齐.md](versions/v0.1.0-需求对齐/docs/02-PRD草案-v0.1-需求对齐.md)
+- 产品设计与防黑盒机制：[docs/产品设计与防黑盒机制.md](docs/产品设计与防黑盒机制.md)
+- 演示指南（答辩用）：[docs/演示指南.md](docs/演示指南.md)
 - 华为云码道适配说明：[docs/华为云码道-赛题一适配.md](docs/华为云码道-赛题一适配.md)
+
+## 项目结构
+
+```
+app/                 页面与 API（App Router）
+  api/analyze        五阶段推演接口（SSE 流式返回）
+  api/ledger         认知账本保存/列表/详情/复盘
+  api/models         可溯源模型库
+  ask/               工作台（提问→推演→五层标注→溯源回放→追问）
+  models/            模型库浏览（按认知操作角色筛选）
+  ledger/            认知账本列表/详情/复盘统计
+components/          工作台、模型卡片、张力面板、溯源回放、复盘表单等
+lib/
+  models-data.ts     30 个可溯源思维模型（角色/动作/边界/谱系/信源/张力对）
+  retrieval.ts       确定性检索（关键词/标签 + 张力对兜底）
+  prompts.ts         五阶段提示词（JSON 契约 + 反幻觉铁律）
+  pipeline.ts        固定五阶段流水线（防死循环：无迭代、有收敛）
+  deepseek.ts        DeepSeek Provider（真实调用，超时/重试/明确报错）
+  store.ts           存储适配器（本地 JSON ↔ 预留华为云 RDS/Redis）
+  stats.ts           复盘统计（长期认知轨迹、常犯偏差信号）
+docs/                产品设计、演示指南、华为云码道适配说明
+versions/            按版本归档的完整快照（v0.1.0 → v0.4.0）
+```
 
 ## 技术方案（已实现）
 
