@@ -1,0 +1,35 @@
+# 依赖与构建产物
+node_modules/
+.next/
+out/
+dist/
+build/
+
+# 环境变量与密钥（提交前绝不入库）
+.env
+.env.*
+!.env.example
+
+# 本地数据与缓存
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+data/
+.next/cache/
+.turbo/
+.vite/
+
+# 日志
+*.log
+logs/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.idea/
+.vscode/*
+!.vscode/extensions.json
