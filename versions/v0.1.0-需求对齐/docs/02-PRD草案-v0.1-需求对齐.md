@@ -30,10 +30,11 @@
 
 - **应用形态**：Next.js 全栈（TypeScript + Tailwind），单仓库前后端一体，Node LTS。码道 CodeArts 流水线可直接构建，Docker 单镜像部署华为云。
 - **存储适配层**：默认本地 SQLite（开发/演示零依赖）↔ 生产切华为云 **RDS**（MySQL/PostgreSQL）+ **Redis**（会话/缓存/限流）。全部走 env 配置与适配器接口，对应赛题"关联 RDS、Redis 等华为云服务快速开通创建"。
-- **AI 适配层（Provider 接口，三档可插拔）**：
-  1. `offline`：内置推理引擎（本地模型库检索 + 张力对生成 + 模板化推演），**零密钥、断网可完整演示**；
-  2. `openai-compatible`：同一套接口接 DeepSeek / 华为云 ModelArts 推理端点（只换 BASE_URL + KEY）；
-  3. `codearts`（预留）：接码道 CodeArts 代码智能体与 Skills。
+- **AI 适配层（Provider 接口，可插拔）**：
+  1. `deepseek`（**当前主引擎**）：直接接 DeepSeek API（OpenAI 兼容），真实模型推理，**不伪造模型效果**；用结构化 JSON 输出驱动张力推演与五层标注；
+  2. `openai-compatible`（通用）：同一接口可换华为云 ModelArts 推理端点或其他兼容服务（只换 BASE_URL + KEY）；
+  3. `codearts`（预留）：接码道 CodeArts 代码智能体与 Skills；
+  4. 网络/密钥异常时给出明确错误提示与重试指引，**不做"看起来像 AI"的假输出**。
 - **交付与开源**：git 仓库 + README / LICENSE / .gitignore + GitHub Actions CI + Dockerfile + docker-compose + 部署说明；满足赛题"开源至 Gitee/GitHub"要求。
 - **反幻觉与防死循环机制**：
   - 模型库条目强制带：认知操作角色 / 适用条件 / 失效边界 / 谱系关系 / 信源；
@@ -50,11 +51,15 @@
 | v0.3.0-模型库与复盘 | 内置精选可溯源模型库；账本复盘 + 长期统计 | 可运行网页 |
 | v0.4.0-交付打磨 | 演示模式 / UI 打磨 / CI / Docker / 华为云适配 / 开源材料 | GitHub 可交付仓库 |
 
-## 6. 待对齐问题（本次对话需要确认）
+## 6. 需求对齐决策记录（已冻结）
 
-1. 技术栈：Next.js 全栈 / 前后端分离 / 纯前端？
-2. AI 推理层：内置离线演示引擎 + 可插拔接口 / 直接接 DeepSeek API / 暂不接？
-3. MVP 范围：完整闭环 / 核心三件套 / 极简单页？
-4. 内置模型库规模：精选约 30 / 100+ / 先 10 个占位？
-5. GitHub：已有账号直接推送 / 帮我生成 SSH Key 并给建仓步骤 / 先本地 git？
-6. 作品名称（暂定"认知工作台"，候选：推演台 / 思辩台 / 判衡台 / 棱镜 Prism）与界面语言（默认中文、极简工具风）。
+| # | 问题 | 决策 |
+| --- | --- | --- |
+| 1 | 技术栈 | **Next.js 全栈单体**（TypeScript + Tailwind，单仓库单流水线，码道 CodeArts 直接构建） |
+| 2 | AI 推理层 | **直接接 DeepSeek API，真实模型效果，不伪造**；保留 OpenAI 兼容接口便于换华为 ModelArts；码道智能体预留 |
+| 3 | MVP 范围 | **完整闭环**：问题→张力推演→五层标注→最小行动→认知账本→复盘 |
+| 4 | 模型库 | **精选约 30 个**，每个带认知操作角色/适用条件/失效边界/谱系/信源 |
+| 5 | GitHub | 用户已有账号；仓库地址与推送方式待补充 |
+| 6 | 名称与语言 | 中文界面、极简工具风；正式名称待定（候选：推演台 / 判衡台 / 棱镜 Prism / 认知工作台） |
+
+**待补充输入**：DeepSeek API Key 提供方式、GitHub 仓库 URL、作品正式名称。
