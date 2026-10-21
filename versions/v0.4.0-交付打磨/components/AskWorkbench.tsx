@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import type { AnalysisRecord, HistoryTurn, PipelineStep } from "@/lib/types";
 import { MODEL_MAP } from "@/lib/models-data";
@@ -35,6 +35,7 @@ export function AskWorkbench() {
   const [saving, setSaving] = useState(false);
   const [isFollowUp, setIsFollowUp] = useState(false);
   const [parentSavedId, setParentSavedId] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   async function run(q: string, followUp: boolean) {
     const trimmed = q.trim();
@@ -47,6 +48,8 @@ export function AskWorkbench() {
     setSavedId(null);
     setSavedMsg("");
     setStatus("推演开始：事实收口");
+    const controller = new AbortController();
+    abortRef.current = controller;
     let rec: AnalysisRecord | null = null;
     try {
       const res = await fetch("/api/analyze", {
@@ -57,6 +60,7 @@ export function AskWorkbench() {
           extraFacts: followUp ? undefined : extraFacts.trim() || undefined,
           history: followUp ? history : [],
         }),
+        signal: controller.signal,
       });
       if (!res.ok) {
         const j = await res.json().catch(() => null);
@@ -98,7 +102,11 @@ export function AskWorkbench() {
       setHistory((h) => [...h, { question: trimmed, summary: rec!.summary ?? "" }]);
       if (followUp) setChain((c) => [...c, rec!]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      if (controller.signal.aborted) {
+        setError("已取消推演（该次模型调用已中止）");
+      } else {
+        setError(e instanceof Error ? e.message : String(e));
+      }
       setPhase("error");
     }
   }
@@ -185,6 +193,13 @@ export function AskWorkbench() {
           <p className="text-sm text-zinc-700 flex items-center gap-2">
             <span className="inline-block w-3 h-3 rounded-full border-2 border-zinc-300 border-t-zinc-900 animate-spin" />
             {status}
+            <button
+              type="button"
+              onClick={() => abortRef.current?.abort()}
+              className="ml-auto text-xs px-2 py-1 rounded border border-zinc-300 text-zinc-500 hover:bg-zinc-50"
+            >
+              取消
+            </button>
           </p>
           <ol className="space-y-1">
             {steps.map((s) => (
