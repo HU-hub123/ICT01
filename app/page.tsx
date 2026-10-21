@@ -40,7 +40,7 @@ export default function Home() {
           <b className="text-zinc-700"> AI 是怎么一步步得出这个答案的</b>。
         </p>
         <blockquote className="text-sm text-zinc-500 italic">
-          "我们保存了大量结论，却很少保存自己是如何得到这些结论的。"
+          「我们保存了大量结论，却很少保存自己是如何得到这些结论的。」
         </blockquote>
         <div className="flex justify-center gap-3">
           <Link
@@ -73,7 +73,7 @@ export default function Home() {
 
       <section>
         <h2 className="text-lg font-semibold text-zinc-900 mb-4 text-center">
-          与"模型检索问答"的四点不同
+          与「模型检索问答」的四点不同
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {DIFFS.map((d) => (

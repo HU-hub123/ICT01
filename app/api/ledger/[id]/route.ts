@@ -1,3 +1,4 @@
+import { jsonResponse } from "@/lib/http";
 import { store } from "@/lib/store";
 
 export const runtime = "nodejs";
@@ -10,9 +11,9 @@ export async function GET(
   const { id } = await params;
   const record = await store.get(id);
   if (!record) {
-    return Response.json({ error: "未找到该认知账本条目" }, { status: 404 });
+    return jsonResponse({ error: "未找到该认知账本条目" }, 404);
   }
-  return Response.json({ record });
+  return jsonResponse({ record });
 }
 
 /** POST /api/ledger/[id] —— 提交复盘（实际结果 → 推翻/确认假设） */
@@ -30,11 +31,11 @@ export async function POST(
   try {
     body = await req.json();
   } catch {
-    return Response.json({ error: "请求体不是合法 JSON" }, { status: 400 });
+    return jsonResponse({ error: "请求体不是合法 JSON" }, 400);
   }
   const actualOutcome = (body?.actualOutcome ?? "").trim();
   if (!actualOutcome) {
-    return Response.json({ error: "请先填写实际结果" }, { status: 400 });
+    return jsonResponse({ error: "请先填写实际结果" }, 400);
   }
   const updated = await store.addReview(id, {
     actualOutcome,
@@ -47,7 +48,7 @@ export async function POST(
     lesson: (body?.lesson ?? "").trim(),
   });
   if (!updated) {
-    return Response.json({ error: "未找到该认知账本条目" }, { status: 404 });
+    return jsonResponse({ error: "未找到该认知账本条目" }, 404);
   }
-  return Response.json({ record: updated });
+  return jsonResponse({ record: updated });
 }

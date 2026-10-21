@@ -63,7 +63,7 @@ export default async function StatsPage() {
 
         <div className="panel p-4 space-y-2">
           <h2 className="font-semibold text-zinc-900 text-sm">
-            ⚠️ 常犯偏差信号（已复盘判断中反复出现的"检查偏差"类模型）
+            ⚠️ 常犯偏差信号（已复盘判断中反复出现的「检查偏差」类模型）
           </h2>
           {s.topBiasModels.length === 0 ? (
             <p className="text-xs text-zinc-400">
@@ -100,7 +100,7 @@ export default async function StatsPage() {
               href="/ledger"
               className="inline-block text-sm text-sky-600 underline"
             >
-              去账本找到"待复盘"条目，回填实际结果 →
+              去账本找到「待复盘」条目，回填实际结果 →
             </Link>
           </div>
         ) : (
@@ -124,7 +124,7 @@ export default async function StatsPage() {
         <h2 className="font-semibold text-zinc-900 text-sm">写给自己的教训</h2>
         {s.lessons.length === 0 ? (
           <p className="text-xs text-zinc-400">
-            暂无。复盘时写下"这次学到的教训"，它会累积在这里，成为你自己的判断手册。
+            暂无。复盘时写下「这次学到的教训」，它会累积在这里，成为你自己的判断手册。
           </p>
         ) : (
           <ul className="space-y-3">

@@ -171,19 +171,20 @@ export async function runAnalysis(
         ),
       ),
   )) as Record<string, unknown>;
-  let selections: ModelSelection[] = [];
+  const selections: ModelSelection[] = [];
   {
     const rawSel = Array.isArray(selectionRaw?.selected) ? selectionRaw.selected : [];
-    selections = rawSel
-      .map((s) => {
-        const obj = s as Record<string, unknown>;
-        const modelId = asString(obj?.modelId);
-        return MODEL_MAP[modelId]
-          ? { modelId, reason: asString(obj?.selectionReason, "模型适用于该问题的判断点"), source: "llm" as const }
-          : null;
-      })
-      .filter((s): s is ModelSelection => s !== null)
-      .slice(0, 4);
+    for (const s of rawSel) {
+      const obj = s as Record<string, unknown>;
+      const modelId = asString(obj?.modelId);
+      if (!MODEL_MAP[modelId]) continue;
+      selections.push({
+        modelId,
+        reason: asString(obj?.selectionReason, "模型适用于该问题的判断点"),
+        source: "llm",
+      });
+      if (selections.length >= 4) break;
+    }
   }
   if (selections.length < 2) {
     // 确定性兜底：LLM 选择失败时，直接取检索前 3 个
@@ -286,7 +287,7 @@ export async function runAnalysis(
   )
     .map((c) => {
       const obj = c as Record<string, unknown>;
-      const betweenRaw = Array.isArray(obj?.between) ? obj.between.map(asString) : [];
+      const betweenRaw = Array.isArray(obj?.between) ? obj.between.map((v) => asString(v)) : [];
       const between = betweenRaw.length === 2 ? (betweenRaw as [string, string]) : null;
       if (!between) return null;
       return {

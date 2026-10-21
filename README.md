@@ -17,7 +17,7 @@
 | v0.1.0-需求对齐 | 调研笔记 + PRD 草案 + 仓库骨架 | ✅ 已完成 |
 | v0.2.0-MVP核心闭环 | 问题→张力推演→五层标注→最小行动→认知账本（真实 DeepSeek 五阶段推演） | ✅ 已实现 |
 | v0.3.0-模型库与复盘 | 复盘统计（长期认知轨迹、常犯偏差信号）、模型使用频次、追问链关联 | ✅ 已实现 |
-| v0.4.0-交付打磨 | 演示模式 / CI / Docker / 华为云适配 / 开源材料 | 待开始 |
+| v0.4.0-交付打磨 | 生产构建通过 / Docker+compose / GitHub Actions CI / 华为云码道适配文档 / MIT 开源 | ✅ 已实现 |
 
 ## 目标赛事
 
@@ -30,6 +30,7 @@
 
 - 调研笔记：[versions/v0.1.0-需求对齐/docs/01-调研笔记-观猹与认知脚手架.md](versions/v0.1.0-需求对齐/docs/01-调研笔记-观猹与认知脚手架.md)
 - PRD 草案：[versions/v0.1.0-需求对齐/docs/02-PRD草案-v0.1-需求对齐.md](versions/v0.1.0-需求对齐/docs/02-PRD草案-v0.1-需求对齐.md)
+- 华为云码道适配说明：[docs/华为云码道-赛题一适配.md](docs/华为云码道-赛题一适配.md)
 
 ## 技术方案（已实现）
 
@@ -45,3 +46,11 @@ pnpm dev          # 打开 http://localhost:3100
 ```
 
 > 推理层为固定五阶段顺序执行（每阶段最多两次模型调用），不存在循环推理；任何一步失败都会明确报错，绝不伪造输出。
+
+### Docker 一键部署（华为云 ECS/CCE 同构）
+
+```bash
+docker compose up --build   # 打开 http://localhost:3000
+```
+
+生产构建验证：`pnpm build`；CI 见 [.github/workflows/ci.yml](.github/workflows/ci.yml)。

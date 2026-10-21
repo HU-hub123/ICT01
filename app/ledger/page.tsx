@@ -11,7 +11,7 @@ export default async function LedgerPage() {
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">认知账本</h1>
         <p className="text-sm text-zinc-500 mt-1">
-          这里保存的不是聊天记录，而是"你是怎么得到这个判断的"：问题、事实、假设、证据、冲突、预测与停止条件。
+          这里保存的不是聊天记录，而是「你是怎么得到这个判断的」：问题、事实、假设、证据、冲突、预测与停止条件。
         </p>
       </div>
       {items.length === 0 ? (

@@ -82,8 +82,10 @@ export function AskWorkbench() {
             continue;
           }
           if (ev.type === "status") setStatus(String(ev.message ?? ""));
-          else if (ev.type === "step" && ev.step) setSteps((p) => [...p, ev.step]);
-          else if (ev.type === "record" && ev.record) {
+          else if (ev.type === "step" && ev.step) {
+            const step = ev.step;
+            setSteps((p) => [...p, step]);
+          } else if (ev.type === "record" && ev.record) {
             rec = ev.record;
             setRecord(rec);
             setPhase("done");
@@ -229,7 +231,7 @@ export function AskWorkbench() {
       {record && (
         <div className="space-y-4">
           <div className="panel p-4 space-y-3">
-            <h2 className="font-semibold text-zinc-900">① 事实收口：先分清"知道的"和"不知道的"</h2>
+            <h2 className="font-semibold text-zinc-900">① 事实收口：先分清「知道的」和「不知道的」</h2>
             <p className="text-sm text-zinc-800">
               <b>核心判断点：</b>
               {record.factsRecap.coreJudgment}
@@ -326,7 +328,7 @@ export function AskWorkbench() {
           <div className="panel p-4 space-y-3">
             <h2 className="font-semibold text-zinc-900">📒 存入认知账本</h2>
             <p className="text-xs text-zinc-500">
-              保存的是"判断过程"（问题、事实、假设、证据、冲突、预测、停止条件），不是聊天记录。之后可回来填写实际结果，复盘哪个假设被推翻。
+              保存的是「判断过程」（问题、事实、假设、证据、冲突、预测、停止条件），不是聊天记录。之后可回来填写实际结果，复盘哪个假设被推翻。
             </p>
             <div className="flex items-center gap-3 flex-wrap">
               <button
@@ -349,7 +351,7 @@ export function AskWorkbench() {
             </div>
             <div className="border-t border-zinc-100 pt-3 space-y-2">
               <p className="text-xs text-zinc-500">
-                追问（将自动携带本轮系统自己的回答摘要与全部历史，修复"追问丢上文"问题）
+                追问（将自动携带本轮系统自己的回答摘要与全部历史，修复「追问丢上文」问题）
               </p>
               <div className="flex gap-2">
                 <input

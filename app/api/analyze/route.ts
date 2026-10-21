@@ -1,4 +1,5 @@
 import { llmStatus } from "@/lib/deepseek";
+import { jsonResponse } from "@/lib/http";
 import { runAnalysis } from "@/lib/pipeline";
 import type { HistoryTurn } from "@/lib/types";
 
@@ -22,19 +23,19 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return Response.json({ error: "请求体不是合法 JSON" }, { status: 400 });
+    return jsonResponse({ error: "请求体不是合法 JSON" }, 400);
   }
   const question = (body?.question ?? "").trim().slice(0, 500);
   if (!question) {
-    return Response.json({ error: "问题不能为空" }, { status: 400 });
+    return jsonResponse({ error: "问题不能为空" }, 400);
   }
   if (!llmStatus().configured) {
-    return Response.json(
+    return jsonResponse(
       {
         error:
           "未配置 DEEPSEEK_API_KEY：请在项目根目录 .env 中填入真实的 DeepSeek API Key 后重启服务（.env 不会被提交到 Git）。",
       },
-      { status: 500 },
+      500,
     );
   }
 
