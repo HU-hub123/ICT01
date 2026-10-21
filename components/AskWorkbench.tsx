@@ -33,10 +33,13 @@ export function AskWorkbench() {
   const [savedId, setSavedId] = useState<string | null>(null);
   const [savedMsg, setSavedMsg] = useState("");
   const [saving, setSaving] = useState(false);
+  const [isFollowUp, setIsFollowUp] = useState(false);
+  const [parentSavedId, setParentSavedId] = useState<string | null>(null);
 
   async function run(q: string, followUp: boolean) {
     const trimmed = q.trim();
     if (!trimmed || phase === "running") return;
+    setIsFollowUp(followUp);
     setPhase("running");
     setError("");
     setSteps([]);
@@ -103,14 +106,19 @@ export function AskWorkbench() {
     setSaving(true);
     setSavedMsg("");
     try {
+      const toSave: AnalysisRecord =
+        isFollowUp && parentSavedId
+          ? { ...record, followUpOf: parentSavedId }
+          : record;
       const res = await fetch("/api/ledger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ record }),
+        body: JSON.stringify({ record: toSave }),
       });
       const j = await res.json().catch(() => null);
       if (res.ok && j?.record?.id) {
         setSavedId(j.record.id);
+        if (!isFollowUp) setParentSavedId(j.record.id);
         setSavedMsg("已存入认知账本");
       } else {
         setSavedMsg(j?.error ?? "保存失败，请重试");

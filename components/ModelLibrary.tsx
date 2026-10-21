@@ -5,8 +5,8 @@ import { MODELS } from "@/lib/models-data";
 import { ROLE_LABELS, type OpRole } from "@/lib/types";
 import { ModelCard } from "./ModelCard";
 
-/** 模型库浏览器：按认知操作角色筛选 + 关键词搜索 */
-export function ModelLibrary() {
+/** 模型库浏览器：按认知操作角色筛选 + 关键词搜索；usage 为历史推演使用次数 */
+export function ModelLibrary({ usage }: { usage?: Record<string, number> }) {
   const [role, setRole] = useState<OpRole | "all">("all");
   const [q, setQ] = useState("");
   const roles = Object.keys(ROLE_LABELS) as OpRole[];
@@ -62,7 +62,7 @@ export function ModelLibrary() {
       </p>
       <div className="grid gap-3 md:grid-cols-2">
         {filtered.map((m) => (
-          <ModelCard key={m.id} model={m} />
+          <ModelCard key={m.id} model={m} usedCount={usage?.[m.id] ?? 0} />
         ))}
       </div>
       {filtered.length === 0 && (

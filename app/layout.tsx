@@ -13,6 +13,7 @@ const nav = [
   { href: "/ask", label: "工作台" },
   { href: "/models", label: "模型库" },
   { href: "/ledger", label: "认知账本" },
+  { href: "/ledger/stats", label: "复盘统计" },
 ];
 
 export default function RootLayout({

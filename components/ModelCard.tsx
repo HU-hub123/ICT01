@@ -2,7 +2,7 @@ import { MODEL_MAP } from "@/lib/models-data";
 import { ROLE_LABELS, type ModelDef } from "@/lib/types";
 
 /** 模型库卡片：完整展示可溯源信息 */
-export function ModelCard({ model }: { model: ModelDef }) {
+export function ModelCard({ model, usedCount }: { model: ModelDef; usedCount?: number }) {
   return (
     <div className="panel p-4 space-y-2 flex flex-col">
       <div className="flex items-center gap-2 flex-wrap">
@@ -11,6 +11,11 @@ export function ModelCard({ model }: { model: ModelDef }) {
           {ROLE_LABELS[model.role]}
         </span>
         <span className="text-xs text-zinc-400">{model.nameEn}</span>
+        {usedCount !== undefined && usedCount > 0 && (
+          <span className="text-xs px-2 py-0.5 rounded-full bg-sky-50 text-sky-700">
+            你的推演用过 ×{usedCount}
+          </span>
+        )}
       </div>
       <p className="text-sm text-zinc-700 leading-6">{model.definition}</p>
       <p className="text-xs text-amber-900 bg-amber-50 border border-amber-100 rounded-lg p-2 leading-5">
