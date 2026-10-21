@@ -1,0 +1,15 @@
+# 本地一键启动（与华为云 CCE 部署保持同一镜像）
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
+    volumes:
+      - app-data:/app/data
+
+volumes:
+  app-data:
