@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 const nav = [
   { href: "/", label: "首页" },
   { href: "/ask", label: "工作台" },
+  { href: "/demo", label: "演示" },
   { href: "/models", label: "模型库" },
   { href: "/ledger", label: "认知账本" },
   { href: "/ledger/stats", label: "复盘统计" },
@@ -26,16 +27,16 @@ export default function RootLayout({
       <body className="antialiased min-h-screen flex flex-col">
         <header className="border-b border-zinc-200 bg-white/90 backdrop-blur sticky top-0 z-40">
           <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
-            <Link href="/" className="font-semibold text-zinc-900">
+            <Link href="/" className="font-semibold text-zinc-900 whitespace-nowrap">
               认知脚手架
-              <span className="text-zinc-400 font-normal"> · 可溯源思考工作台</span>
+              <span className="hidden sm:inline text-zinc-400 font-normal"> · 可溯源思考工作台</span>
             </Link>
-            <nav className="flex items-center gap-1 text-sm">
+            <nav className="flex items-center gap-1 text-sm overflow-x-auto whitespace-nowrap ml-2">
               {nav.map((n) => (
                 <Link
                   key={n.href}
                   href={n.href}
-                  className="px-3 py-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
+                  className="px-2.5 py-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
                 >
                   {n.label}
                 </Link>

@@ -42,12 +42,18 @@ export default function Home() {
         <blockquote className="text-sm text-zinc-500 italic">
           「我们保存了大量结论，却很少保存自己是如何得到这些结论的。」
         </blockquote>
-        <div className="flex justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
           <Link
             href="/ask"
             className="px-5 py-2.5 rounded-lg bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-700"
           >
             开始推演 →
+          </Link>
+          <Link
+            href="/demo"
+            className="px-5 py-2.5 rounded-lg border border-zinc-300 text-zinc-700 text-sm font-medium hover:bg-white"
+          >
+            ▶ 观看演示模式
           </Link>
           <Link
             href="/models"

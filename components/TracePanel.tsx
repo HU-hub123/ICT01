@@ -7,8 +7,14 @@ import type { PipelineStep } from "@/lib/types";
  * 溯源回放面板：展示"AI 是怎么一步步得出这个答案的"。
  * 每一步都留档了输入摘要与原始结构化输出 —— 防黑盒的核心界面。
  */
-export function TracePanel({ steps }: { steps: PipelineStep[] }) {
-  const [open, setOpen] = useState(false);
+export function TracePanel({
+  steps,
+  defaultOpen = false,
+}: {
+  steps: PipelineStep[];
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   if (!steps.length) return null;
   return (
     <div className="panel p-4">

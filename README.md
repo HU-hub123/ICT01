@@ -18,6 +18,7 @@
 | v0.2.0-MVP核心闭环 | 问题→张力推演→五层标注→最小行动→认知账本（真实 DeepSeek 五阶段推演） | ✅ 已实现 |
 | v0.3.0-模型库与复盘 | 复盘统计（长期认知轨迹、常犯偏差信号）、模型使用频次、追问链关联 | ✅ 已实现 |
 | v0.4.0-交付打磨 | 生产构建通过 / Docker+compose / GitHub Actions CI / 华为云码道适配文档 / MIT 开源 | ✅ 已实现 |
+| v0.5.0-功能完善 | 决策图可视化 / 演示模式（内置解说字幕，可自动录屏）/ 模型并排对照 / 账本导出（JSON+Markdown）/ 追问链可视化 / 移动端与导航打磨 | ✅ 已实现 |
 
 ## 目标赛事
 
@@ -42,9 +43,10 @@ app/                 页面与 API（App Router）
   api/ledger         认知账本保存/列表/详情/复盘
   api/models         可溯源模型库
   ask/               工作台（提问→推演→五层标注→溯源回放→追问）
+  demo/              演示模式：自动播放一次完整推演，界面自带解说字幕（供录屏）
   models/            模型库浏览（按认知操作角色筛选）
   ledger/            认知账本列表/详情/复盘统计
-components/          工作台、模型卡片、张力面板、溯源回放、复盘表单等
+components/          工作台、决策图、模型对照、张力面板、溯源回放、复盘表单、导出等
 lib/
   models-data.ts     30 个可溯源思维模型（角色/动作/边界/谱系/信源/张力对）
   retrieval.ts       确定性检索（关键词/标签 + 张力对兜底）
@@ -53,8 +55,9 @@ lib/
   deepseek.ts        DeepSeek Provider（真实调用，超时/重试/明确报错）
   store.ts           存储适配器（本地 JSON ↔ 预留华为云 RDS/Redis）
   stats.ts           复盘统计（长期认知轨迹、常犯偏差信号）
+  sse-client.ts      共享 SSE 客户端（/api/analyze 流式解析、账本保存）
 docs/                产品设计、演示指南、华为云码道适配说明
-versions/            按版本归档的完整快照（v0.1.0 → v0.4.0）
+versions/            按版本归档的完整快照（v0.1.0 → v0.5.0）
 ```
 
 ## 技术方案（已实现）
@@ -68,6 +71,8 @@ Next.js 15 全栈（TypeScript + Tailwind）· DeepSeek 真实推理（OpenAI �
 # 2. 安装依赖并启动
 pnpm install
 pnpm dev          # 打开 http://localhost:3100
+# 演示模式（自动播放 + 解说字幕，适合录屏/评审）：
+#   http://localhost:3100/demo
 ```
 
 > 推理层为固定五阶段顺序执行（每阶段最多两次模型调用），不存在循环推理；任何一步失败都会明确报错，绝不伪造输出。

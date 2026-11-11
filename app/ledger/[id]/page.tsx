@@ -9,6 +9,9 @@ import { TensionSection } from "@/components/TensionSection";
 import { ActionCard } from "@/components/ActionCard";
 import { TracePanel } from "@/components/TracePanel";
 import { ReviewForm } from "@/components/ReviewForm";
+import { DecisionGraph } from "@/components/DecisionGraph";
+import { ModelCompareTable } from "@/components/ModelCompareTable";
+import { ExportButtons } from "@/components/ExportButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +23,9 @@ export default async function LedgerDetail({
   const { id } = await params;
   const record = await store.get(id);
   if (!record) notFound();
+  const all = await store.list();
+  const children = all.filter((r) => r.followUpOf === record.id);
+  const parent = record.followUpOf ? all.find((r) => r.id === record.followUpOf) : null;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 space-y-4">
@@ -40,6 +46,30 @@ export default async function LedgerDetail({
         {record.extraFacts && (
           <p className="text-sm text-zinc-600">补充信息：{record.extraFacts}</p>
         )}
+        <div className="pt-2 space-y-1">
+          {parent && (
+            <p className="text-xs text-zinc-500">
+              上一轮追问：
+              <Link href={`/ledger/${parent.id}`} className="text-sky-600 underline">
+                {parent.question.slice(0, 40)}…
+              </Link>
+            </p>
+          )}
+          {children.length > 0 && (
+            <p className="text-xs text-zinc-500">
+              后续追问：
+              {children.map((c, i) => (
+                <span key={c.id}>
+                  {i > 0 && "；"}
+                  <Link href={`/ledger/${c.id}`} className="text-sky-600 underline">
+                    {c.question.slice(0, 24)}…
+                  </Link>
+                </span>
+              ))}
+            </p>
+          )}
+          <ExportButtons record={record} />
+        </div>
       </div>
 
       <div className="panel p-4 space-y-2">
@@ -95,11 +125,18 @@ export default async function LedgerDetail({
         checkpoints={record.checkpoints}
       />
 
+      <div className="panel p-4 space-y-2">
+        <h2 className="font-semibold text-zinc-900">🗺 决策图：这次推演的骨架</h2>
+        <DecisionGraph record={record} />
+      </div>
+
       <div className="panel p-4 space-y-3">
         <h2 className="font-semibold text-zinc-900">⑤ 综合结论（五层标注）</h2>
         <LayerLegend />
         <TaggedList items={record.conclusion} />
       </div>
+
+      <ModelCompareTable record={record} />
 
       <ActionCard minimalAction={record.minimalAction} />
 

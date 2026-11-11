@@ -10,6 +10,8 @@ import { ArgumentCard } from "./ArgumentCard";
 import { TensionSection } from "./TensionSection";
 import { ActionCard } from "./ActionCard";
 import { TracePanel } from "./TracePanel";
+import { DecisionGraph } from "./DecisionGraph";
+import { ModelCompareTable } from "./ModelCompareTable";
 
 const DEMO_QUESTIONS = [
   "一个已经投入 18 个月的产品，留存不温不火，到底该不该继续？",
@@ -329,6 +331,13 @@ export function AskWorkbench() {
             agreementNote={record.agreementNote}
             checkpoints={record.checkpoints}
           />
+
+          <div className="panel p-4 space-y-2">
+            <h2 className="font-semibold text-zinc-900">🗺 决策图：这次推演的骨架</h2>
+            <DecisionGraph record={record} />
+          </div>
+
+          <ModelCompareTable record={record} />
 
           <div className="panel p-4 space-y-3">
             <h2 className="font-semibold text-zinc-900">⑤ 综合结论（每句话都标了成色）</h2>
