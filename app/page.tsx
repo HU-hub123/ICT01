@@ -56,19 +56,19 @@ export default function Home() {
         <div className="flex flex-wrap justify-center gap-3 pt-1">
           <Link
             href="/ask"
-            className="px-5 py-2.5 rounded-full bg-stone-800 text-white text-sm font-medium hover:bg-stone-700 transition-colors"
+            className="btn-brand px-5 py-2.5 text-sm font-medium"
           >
             开始一次推演
           </Link>
           <Link
             href="/demo"
-            className="px-5 py-2.5 rounded-full border border-line bg-white/60 text-stone-700 text-sm font-medium hover:border-stone-300"
+            className="px-5 py-2.5 rounded-full border border-line bg-white/60 text-stone-700 text-sm font-medium hover:border-brand/40 hover:text-brand"
           >
             ▶ 看演示
           </Link>
           <Link
             href="/models"
-            className="px-5 py-2.5 rounded-full border border-line bg-white/60 text-stone-700 text-sm font-medium hover:border-stone-300"
+            className="px-5 py-2.5 rounded-full border border-line bg-white/60 text-stone-700 text-sm font-medium hover:border-brand/40 hover:text-brand"
           >
             翻翻模型库
           </Link>

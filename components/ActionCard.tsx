@@ -14,7 +14,7 @@ export function ActionCard({ minimalAction }: { minimalAction: MinimalAction }) 
         {minimalAction.stopCondition}
       </p>
       <p className="text-sm text-stone-800 leading-6">
-        <b className="text-sky-700">看多久、看什么：</b>
+        <b className="text-brand">看多久、看什么：</b>
         {minimalAction.observationWindow}
       </p>
     </div>

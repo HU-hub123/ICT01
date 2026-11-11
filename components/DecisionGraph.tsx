@@ -162,14 +162,14 @@ export function DecisionGraph({ record }: { record: AnalysisRecord }) {
 
         {/* 节点 */}
         <Node box={q}>
-          <p className="text-[11px] font-semibold tracking-wide text-zinc-400">问题</p>
-          <p className="text-[13px] text-zinc-900 leading-snug line-clamp-2">{record.question}</p>
+          <p className="text-[11px] font-semibold tracking-wide text-stone-400">问题</p>
+          <p className="text-[13px] text-ink leading-snug line-clamp-2">{record.question}</p>
         </Node>
         <Node box={fLeft} tone="emerald">
           <p className="text-[11px] font-semibold text-emerald-700">
             已确认事实 · {record.factsRecap.confirmedFacts.length} 条
           </p>
-          <p className="text-[12px] text-zinc-700 leading-snug line-clamp-2">
+          <p className="text-[12px] text-stone-700 leading-snug line-clamp-2">
             {record.factsRecap.confirmedFacts.slice(0, 2).join("；") || "（未提供，推演建立在标注过的假设上）"}
           </p>
         </Node>
@@ -177,14 +177,14 @@ export function DecisionGraph({ record }: { record: AnalysisRecord }) {
           <p className="text-[11px] font-semibold text-rose-700">
             缺失信息 · {record.factsRecap.missingInfo.length} 条
           </p>
-          <p className="text-[12px] text-zinc-700 leading-snug line-clamp-2">
+          <p className="text-[12px] text-stone-700 leading-snug line-clamp-2">
             {record.factsRecap.missingInfo.slice(0, 2).join("；") || "（未识别到）"}
           </p>
         </Node>
         {modelBoxes.map((mb) => (
           <Node key={mb.model.id} box={mb}>
-            <p className="text-[13px] font-semibold text-zinc-900">{mb.model.name}</p>
-            <p className="text-[11px] text-zinc-400">{mb.model.nameEn}</p>
+            <p className="text-[13px] font-semibold text-ink">{mb.model.name}</p>
+            <p className="text-[11px] text-stone-400">{mb.model.nameEn}</p>
           </Node>
         ))}
         {conflictBox && (
@@ -192,25 +192,25 @@ export function DecisionGraph({ record }: { record: AnalysisRecord }) {
             <p className="text-[12px] font-semibold text-amber-800">
               ⚔ 冲突点 ×{record.conflicts.length}（各自在什么条件下成立）
             </p>
-            <p className="text-[12px] text-zinc-700 leading-snug line-clamp-1">
+            <p className="text-[12px] text-stone-700 leading-snug line-clamp-1">
               {record.conflicts[0]?.statement}
             </p>
           </Node>
         )}
         <Node box={concl} tone="sky">
-          <p className="text-[12px] font-semibold text-sky-800">⑤ 综合结论（五层标注）</p>
-          <p className="text-[12px] text-zinc-700 leading-snug line-clamp-2">
+          <p className="text-[12px] font-semibold text-brand">⑤ 综合结论（五层标注）</p>
+          <p className="text-[12px] text-stone-700 leading-snug line-clamp-2">
             {record.conclusion[0]?.text}
           </p>
         </Node>
         <Node box={action}>
           <p className="text-[12px] font-semibold text-emerald-700">🎯 最小行动 + 停止条件</p>
-          <p className="text-[12px] text-zinc-700 leading-snug line-clamp-2">
+          <p className="text-[12px] text-stone-700 leading-snug line-clamp-2">
             {record.minimalAction.action}
           </p>
         </Node>
       </svg>
-      <p className="text-xs text-zinc-400">
+      <p className="text-xs text-stone-400">
         图由本次推演的真实输出生成：实线 = 推演流；琥珀虚线 = 张力冲突。节点仅做摘要，完整内容见下方。
       </p>
     </div>
@@ -227,11 +227,11 @@ function Node({
   children: React.ReactNode;
 }) {
   const styles: Record<string, string> = {
-    neutral: "border-zinc-200 bg-white",
+    neutral: "border-line bg-white",
     emerald: "border-emerald-200 bg-emerald-50/70",
     rose: "border-rose-200 bg-rose-50/70",
     amber: "border-amber-200 bg-amber-50/70",
-    sky: "border-sky-200 bg-sky-50/70",
+    sky: "border-sky-200 bg-brand-soft/70",
   };
   return (
     <foreignObject x={box.x} y={box.y} width={box.w} height={box.h}>

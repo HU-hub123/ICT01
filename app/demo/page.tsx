@@ -8,7 +8,7 @@ export const metadata = {
 export default function DemoPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <p className="text-xs text-zinc-400 mb-2">
+      <p className="text-xs text-stone-400 mb-2">
         演示模式 · 自动播放 · 真实调用 DeepSeek 推理（非预录数据）
       </p>
       <DemoPlayer />

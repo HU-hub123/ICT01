@@ -23,14 +23,14 @@ export function ExportButtons({ record }: { record: AnalysisRecord }) {
       <button
         type="button"
         onClick={() => download(`${base}.json`, JSON.stringify(record, null, 2), "application/json;charset=utf-8")}
-        className="px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-700 text-xs hover:bg-zinc-50"
+        className="px-3 py-1.5 rounded-lg border border-line text-stone-700 text-xs hover:bg-stone-50"
       >
         导出 JSON（完整留档）
       </button>
       <button
         type="button"
         onClick={() => download(`${base}.md`, toMarkdown(record), "text/markdown;charset=utf-8")}
-        className="px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-700 text-xs hover:bg-zinc-50"
+        className="px-3 py-1.5 rounded-lg border border-line text-stone-700 text-xs hover:bg-stone-50"
       >
         导出 Markdown（复盘文档）
       </button>

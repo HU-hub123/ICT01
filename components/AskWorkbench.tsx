@@ -184,7 +184,7 @@ export function AskWorkbench() {
             type="button"
             disabled={phase === "running"}
             onClick={() => run(question, false)}
-            className="px-4 py-2 rounded-full bg-stone-800 text-white text-sm disabled:opacity-50 hover:bg-stone-700 transition-colors"
+            className="px-4 py-2 rounded-full bg-brand text-white text-sm disabled:opacity-50 hover:bg-[#3b58f0] transition-colors"
           >
             {phase === "running" ? "推演中…" : "开始推演"}
           </button>
@@ -324,7 +324,7 @@ export function AskWorkbench() {
                 <button
                   type="button"
                   onClick={() => setShowAllMissing((v) => !v)}
-                  className="mt-2 text-xs text-sky-700 underline"
+                  className="mt-2 text-xs text-brand underline"
                 >
                   {showAllMissing ? "收起" : `还有 ${missing.length - 3} 条，展开看看`}
                 </button>
@@ -477,7 +477,7 @@ export function AskWorkbench() {
                 type="button"
                 onClick={save}
                 disabled={saving || !!savedId}
-                className="px-4 py-2 rounded-full bg-emerald-700 text-white text-sm disabled:opacity-50 hover:bg-emerald-600"
+                className="px-4 py-2 rounded-full bg-brand text-white text-sm disabled:opacity-50 hover:bg-[#3b58f0]"
               >
                 {saving ? "保存中…" : savedId ? "已保存" : "保存到认知账本"}
               </button>
@@ -485,7 +485,7 @@ export function AskWorkbench() {
               {savedId && (
                 <Link
                   href={`/ledger/${savedId}`}
-                  className="text-sm text-sky-700 underline hover:text-sky-800"
+                  className="text-sm text-brand underline hover:text-brand"
                 >
                   打开账本详情 →
                 </Link>

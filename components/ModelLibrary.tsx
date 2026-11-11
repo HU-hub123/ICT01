@@ -31,7 +31,7 @@ export function ModelLibrary({ usage }: { usage?: Record<string, number> }) {
   const chip = (active: boolean) =>
     `px-3 py-1 rounded-full text-xs border transition-colors ${
       active
-        ? "bg-stone-800 text-white border-stone-800"
+        ? "bg-brand text-white border-stone-800"
         : "bg-white/60 text-stone-600 border-line hover:border-stone-300"
     }`;
 

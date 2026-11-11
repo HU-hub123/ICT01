@@ -167,14 +167,14 @@ export function DemoPlayer() {
       {/* 标题屏 */}
       {stage === "title" && (
         <div className="min-h-[70vh] flex flex-col items-center justify-center text-center space-y-5 reveal">
-          <p className="text-xs tracking-[0.3em] text-zinc-400">COGNITIVE SCAFFOLD · 演示</p>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-zinc-900">
+          <p className="text-xs tracking-[0.3em] text-stone-400">COGNITIVE SCAFFOLD · 演示</p>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-ink">
             认知脚手架
           </h1>
-          <p className="text-zinc-500 max-w-xl">
+          <p className="text-stone-500 max-w-xl">
             让 AI 的思考过程被看见、被检查、被记住、被复盘 —— 拒绝黑盒
           </p>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-stone-400">
             本演示真实调用 DeepSeek 推理，不是录好的假数据
           </p>
         </div>
@@ -185,10 +185,10 @@ export function DemoPlayer() {
         <div className="space-y-4">
           <div className="panel p-4 space-y-3">
             <label className="block">
-              <span className="text-sm font-medium text-zinc-700">
+              <span className="text-sm font-medium text-stone-700">
                 你的问题（一个需要判断的问题）
               </span>
-              <div className="mt-1 w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg bg-white min-h-[76px] leading-6">
+              <div className="mt-1 w-full px-3 py-2 text-sm border border-line rounded-lg bg-white min-h-[76px] leading-6">
                 {typed}
                 {stage === "typing" && (
                   <span className="inline-block w-0.5 h-4 bg-zinc-800 align-middle animate-pulse" />
@@ -196,39 +196,39 @@ export function DemoPlayer() {
               </div>
             </label>
             <label className="block">
-              <span className="text-xs text-zinc-500">补充已确认的事实（可选）</span>
-              <div className="mt-1 w-full px-3 py-2 text-xs border border-zinc-200 rounded-lg bg-white text-zinc-600 truncate">
+              <span className="text-xs text-stone-500">补充已确认的事实（可选）</span>
+              <div className="mt-1 w-full px-3 py-2 text-xs border border-line rounded-lg bg-white text-stone-600 truncate">
                 {after("running") || stage === "running" ? DEMO_FACTS : "（可选）"}
               </div>
             </label>
             <div className="flex items-center gap-2">
               <span
-                className={`px-4 py-2 rounded-lg text-sm text-white ${
-                  stage === "running" ? "bg-zinc-400" : "bg-zinc-900"
+                className={`px-4 py-2 rounded-full text-sm text-white ${
+                  stage === "running" ? "bg-brand/50" : "btn-brand"
                 }`}
               >
                 {stage === "running" ? "推演中…" : "开始推演"}
               </span>
-              <span className="text-xs text-zinc-400">演示模式：自动提问 → 自动推演</span>
+              <span className="text-xs text-stone-400">演示模式：自动提问 → 自动推演</span>
             </div>
           </div>
 
           {/* 运行中 */}
           {stage === "running" && (
             <div className="panel p-4 space-y-2 reveal">
-              <p className="text-sm text-zinc-700 flex items-center gap-2">
-                <span className="inline-block w-3 h-3 rounded-full border-2 border-zinc-300 border-t-zinc-900 animate-spin" />
+              <p className="text-sm text-stone-700 flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-full border-2 border-line border-t-brand animate-spin" />
                 {statusText}
               </p>
               <ol className="space-y-1">
                 {steps.map((s) => (
-                  <li key={s.key} className="text-xs text-zinc-500 flex gap-2">
+                  <li key={s.key} className="text-xs text-stone-500 flex gap-2">
                     <span className="text-emerald-600">✓</span>
                     {s.title}（{(s.durationMs / 1000).toFixed(1)}s）
                   </li>
                 ))}
               </ol>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-stone-400">
                 固定五阶段顺序执行（每阶段最多两次模型调用），不存在循环推理。
               </p>
             </div>
@@ -245,10 +245,10 @@ export function DemoPlayer() {
             <div className="space-y-4">
               {after("facts") && (
                 <div id="demo-facts" className="panel p-4 space-y-3 reveal scroll-mt-24">
-                  <h2 className="font-semibold text-zinc-900">
+                  <h2 className="font-semibold text-ink">
                     ① 先把「知道的」和「不知道的」分开
                   </h2>
-                  <p className="text-sm text-zinc-800">
+                  <p className="text-sm text-stone-800">
                     <b>核心判断点：</b>
                     {record.factsRecap.coreJudgment}
                   </p>
@@ -258,7 +258,7 @@ export function DemoPlayer() {
                     </h3>
                     <ul className="space-y-1">
                       {record.factsRecap.confirmedFacts.map((f, i) => (
-                        <li key={i} className="flex gap-2 items-start text-sm text-zinc-800">
+                        <li key={i} className="flex gap-2 items-start text-sm text-stone-800">
                           <span className="mt-0.5 shrink-0">
                             <LayerBadge layer="fact" />
                           </span>
@@ -273,7 +273,7 @@ export function DemoPlayer() {
                     </h3>
                     <ul className="space-y-1">
                       {record.factsRecap.missingInfo.map((f, i) => (
-                        <li key={i} className="flex gap-2 items-start text-sm text-zinc-800">
+                        <li key={i} className="flex gap-2 items-start text-sm text-stone-800">
                           <span className="mt-0.5 shrink-0">
                             <LayerBadge layer="missing" />
                           </span>
@@ -287,7 +287,7 @@ export function DemoPlayer() {
 
               {after("models") && (
                 <div id="demo-models" className="panel p-4 space-y-2 reveal scroll-mt-24">
-                  <h2 className="font-semibold text-zinc-900">
+                  <h2 className="font-semibold text-ink">
                     ② 挑几个角度来看
                   </h2>
                   <div className="grid sm:grid-cols-2 gap-2">
@@ -298,17 +298,17 @@ export function DemoPlayer() {
                         record.selections.some((s2) => s2.modelId === tid),
                       );
                       return (
-                        <div key={sel.modelId} className="border border-zinc-200 rounded-lg p-3">
+                        <div key={sel.modelId} className="border border-line rounded-lg p-3">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium text-sm">{m.name}</span>
-                            <span className="text-xs text-zinc-400">{m.nameEn}</span>
+                            <span className="text-xs text-stone-400">{m.nameEn}</span>
                             {inTension && (
                               <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
                                 ⚔️ 张力
                               </span>
                             )}
                             {sel.source === "library_tension" && (
-                              <span className="text-xs px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500">
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">
                                 库内兜底
                               </span>
                             )}
@@ -328,7 +328,7 @@ export function DemoPlayer() {
 
               {after("arguments") && (
                 <div id="demo-arguments" className="space-y-3 reveal scroll-mt-24">
-                  <h2 className="font-semibold text-zinc-900">
+                  <h2 className="font-semibold text-ink">
                     ③ 让每个角度独立说话
                   </h2>
                   {record.arguments.map((a) => (
@@ -349,14 +349,14 @@ export function DemoPlayer() {
 
               {after("graph") && (
                 <div id="demo-graph" className="panel p-4 space-y-2 reveal scroll-mt-24">
-                  <h2 className="font-semibold text-zinc-900">推演关系图</h2>
+                  <h2 className="font-semibold text-ink">推演关系图</h2>
                   <DecisionGraph record={record} />
                 </div>
               )}
 
               {after("conclusion") && (
                 <div id="demo-conclusion" className="panel p-4 space-y-3 reveal scroll-mt-24">
-                  <h2 className="font-semibold text-zinc-900">⑤ 收束成一句能行动的判断</h2>
+                  <h2 className="font-semibold text-ink">⑤ 收束成一句能行动的判断</h2>
                   <LayerLegend />
                   <TaggedList items={record.conclusion} />
                 </div>
@@ -382,18 +382,18 @@ export function DemoPlayer() {
 
               {after("save") && (
                 <div id="demo-save" className="panel p-4 space-y-2 reveal scroll-mt-24">
-                  <h2 className="font-semibold text-zinc-900">📒 存入认知账本</h2>
-                  <p className="text-xs text-zinc-500">
+                  <h2 className="font-semibold text-ink">📒 存入认知账本</h2>
+                  <p className="text-xs text-stone-500">
                     保存的是「判断过程」（问题、事实、假设、证据、冲突、预测、停止条件），不是聊天记录。
                   </p>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm">
+                    <span className="px-4 py-2 rounded-lg bg-brand text-white text-sm">
                       {savedId ? "已保存" : "保存中…"}
                     </span>
                     {savedId && (
                       <Link
                         href={`/ledger/${savedId}`}
-                        className="text-sm text-sky-600 underline hover:text-sky-700"
+                        className="text-sm text-brand underline hover:text-brand"
                       >
                         打开账本详情 →
                       </Link>
@@ -406,14 +406,14 @@ export function DemoPlayer() {
               {stage === "done" && (
                 <div
                   id="demo-done"
-                  className="rounded-xl border border-zinc-900 bg-zinc-900 text-white p-8 text-center space-y-3 reveal scroll-mt-24"
+                  className="rounded-xl border border-ink bg-ink text-white p-8 text-center space-y-3 reveal scroll-mt-24"
                 >
-                  <p className="text-xs tracking-[0.3em] text-zinc-400">DEMO COMPLETE</p>
+                  <p className="text-xs tracking-[0.3em] text-stone-400">DEMO COMPLETE</p>
                   <p className="text-2xl font-bold text-white">演示结束</p>
-                  <p className="text-sm text-zinc-300">
+                  <p className="text-sm text-stone-300">
                     认知脚手架 · 我们保存结论，也保存得到结论的过程
                   </p>
-                  <p className="text-xs text-zinc-400">github.com/HU-hub123/ICT01</p>
+                  <p className="text-xs text-stone-400">github.com/HU-hub123/ICT01</p>
                 </div>
               )}
             </div>
@@ -424,8 +424,8 @@ export function DemoPlayer() {
       {/* 字幕条（始终置底，录屏即解说） */}
       <div className="fixed bottom-0 inset-x-0 z-50 pointer-events-none">
         <div className="mx-auto max-w-5xl px-4 pb-4">
-          <div className="rounded-xl bg-zinc-900/90 text-white shadow-xl px-4 py-3 flex items-center gap-3 backdrop-blur">
-            <span className="text-[11px] font-mono text-emerald-400 shrink-0 w-14">
+          <div className="rounded-xl bg-[#141a2e]/92 text-white shadow-xl px-4 py-3 flex items-center gap-3 backdrop-blur">
+            <span className="text-[11px] font-mono text-[#9db0ff] shrink-0 w-14">
               {String(Math.max(1, stageIndex)).padStart(2, "0")}/{String(STAGES.length - 1).padStart(2, "0")}
             </span>
             <p className="text-sm leading-6">{caption}</p>

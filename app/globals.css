@@ -1,16 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f4ef; /* 宣纸 */
-  --foreground: #26221d; /* 墨色 */
+  --background: #f7f8fb; /* DeepSeek 风格冷白 */
+  --foreground: #1b1f2a; /* 近墨蓝 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-paper: #f7f4ef;
-  --color-ink: #26221d;
-  --color-line: #e6e0d5;
+  --color-paper: #f7f8fb;
+  --color-ink: #1b1f2a;
+  --color-line: #e6e9f3;
+  --color-brand: #4d6bfe; /* DeepSeek 主蓝 */
+  --color-brand-strong: #3b58f0;
+  --color-brand-soft: #eef2ff;
 }
 
 body {
@@ -30,10 +33,19 @@ h2,
   letter-spacing: 0.01em;
 }
 
-/* 卡片与面板：淡纸、细线、极轻阴影 */
+/* 卡片与面板：白纸、细线、极轻阴影 */
 .panel {
-  @apply bg-white/75 border border-line rounded-2xl;
-  box-shadow: 0 1px 2px rgba(38, 34, 29, 0.04);
+  @apply bg-white/85 border border-line rounded-2xl;
+  box-shadow: 0 1px 2px rgba(27, 31, 42, 0.05);
+}
+
+/* 主按钮统一品牌蓝 */
+.btn-brand {
+  @apply bg-brand text-white rounded-full;
+  transition: background-color 0.15s ease;
+}
+.btn-brand:hover {
+  background-color: var(--color-brand-strong);
 }
 
 /* 演示模式的分段揭示动画 */

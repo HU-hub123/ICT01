@@ -16,7 +16,7 @@ export function ModelCard({ model, usedCount }: { model: ModelDef; usedCount?: n
         </span>
         <span className="text-[11px] text-stone-400">{DISCIPLINE_LABELS[getDiscipline(model.id)]}</span>
         {usedCount !== undefined && usedCount > 0 && (
-          <span className="text-[11px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-700">
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-brand-soft text-brand">
             你的推演用过 ×{usedCount}
           </span>
         )}

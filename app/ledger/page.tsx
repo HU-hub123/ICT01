@@ -9,17 +9,17 @@ export default async function LedgerPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900">认知账本</h1>
-        <p className="text-sm text-zinc-500 mt-1">
+        <h1 className="text-2xl font-bold text-ink">认知账本</h1>
+        <p className="text-sm text-stone-500 mt-1">
           这里保存的不是聊天记录，而是「你是怎么得到这个判断的」：问题、事实、假设、证据、冲突、预测与停止条件。
         </p>
       </div>
       {items.length === 0 ? (
         <div className="panel p-10 text-center space-y-3">
-          <p className="text-sm text-zinc-500">账本还是空的。去工作台完成第一次推演，把判断过程存下来。</p>
+          <p className="text-sm text-stone-500">账本还是空的。去工作台完成第一次推演，把判断过程存下来。</p>
           <Link
             href="/ask"
-            className="inline-block px-4 py-2 bg-zinc-900 text-white text-sm rounded-lg hover:bg-zinc-700"
+            className="inline-block px-4 py-2 bg-ink text-white text-sm rounded-lg hover:bg-zinc-700"
           >
             开始推演
           </Link>
@@ -34,8 +34,8 @@ export default async function LedgerPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-medium text-zinc-900 truncate">{r.question}</p>
-                  <p className="text-xs text-zinc-400 mt-1">
+                  <p className="font-medium text-ink truncate">{r.question}</p>
+                  <p className="text-xs text-stone-400 mt-1">
                     {new Date(r.createdAt).toLocaleString("zh-CN")} ·{" "}
                     {r.selections
                       .map((s) => MODEL_MAP[s.modelId]?.name ?? s.modelId)

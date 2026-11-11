@@ -38,7 +38,7 @@ export default function RootLayout({
                 <Link
                   key={n.href}
                   href={n.href}
-                  className="px-3 py-1.5 rounded-lg text-stone-600 hover:text-ink hover:bg-stone-100/70 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-stone-600 hover:text-brand hover:bg-brand-soft/70 transition-colors"
                 >
                   {n.label}
                 </Link>

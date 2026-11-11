@@ -50,15 +50,15 @@ export function ReviewForm({ recordId }: { recordId: string }) {
 
   return (
     <form onSubmit={submit} className="panel p-4 space-y-3">
-      <h2 className="font-semibold text-zinc-900">📒 复盘：现实结果回填（认知账本闭环）</h2>
+      <h2 className="font-semibold text-ink">📒 复盘：现实结果回填（认知账本闭环）</h2>
       <label className="block text-sm">
-        <span className="text-zinc-600">实际发生了什么（与当时的预期对照）*</span>
+        <span className="text-stone-600">实际发生了什么（与当时的预期对照）*</span>
         <textarea
           required
           value={actualOutcome}
           onChange={(e) => setActualOutcome(e.target.value)}
           rows={3}
-          className="mt-1 w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
+          className="mt-1 w-full px-3 py-2 text-sm border border-line rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
           placeholder="例如：8 周后留存没有达到当时设定的停止线，我在第 9 周停止了投入……"
         />
       </label>
@@ -69,7 +69,7 @@ export function ReviewForm({ recordId }: { recordId: string }) {
             value={overturned}
             onChange={(e) => setOverturned(e.target.value)}
             rows={3}
-            className="mt-1 w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
+            className="mt-1 w-full px-3 py-2 text-sm border border-line rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
           />
         </label>
         <label className="block text-sm">
@@ -78,24 +78,24 @@ export function ReviewForm({ recordId }: { recordId: string }) {
             value={confirmed}
             onChange={(e) => setConfirmed(e.target.value)}
             rows={3}
-            className="mt-1 w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
+            className="mt-1 w-full px-3 py-2 text-sm border border-line rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
           />
         </label>
       </div>
       <label className="block text-sm">
-        <span className="text-zinc-600">这次学到的教训（写给自己半年后看）</span>
+        <span className="text-stone-600">这次学到的教训（写给自己半年后看）</span>
         <textarea
           value={lesson}
           onChange={(e) => setLesson(e.target.value)}
           rows={2}
-          className="mt-1 w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
+          className="mt-1 w-full px-3 py-2 text-sm border border-line rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-300"
         />
       </label>
       {err && <p className="text-xs text-rose-600">{err}</p>}
       <button
         type="submit"
         disabled={state === "saving"}
-        className="px-4 py-2 rounded-lg bg-zinc-900 text-white text-sm disabled:opacity-50 hover:bg-zinc-700"
+        className="px-4 py-2 rounded-lg bg-ink text-white text-sm disabled:opacity-50 hover:bg-zinc-700"
       >
         {state === "saving" ? "保存中…" : "提交复盘"}
       </button>

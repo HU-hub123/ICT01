@@ -54,7 +54,7 @@ export function ExportAllButton() {
         type="button"
         disabled={busy}
         onClick={() => exportAll("json")}
-        className="px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-700 text-xs hover:bg-zinc-50 disabled:opacity-50"
+        className="px-3 py-1.5 rounded-lg border border-line text-stone-700 text-xs hover:bg-stone-50 disabled:opacity-50"
       >
         导出全部 JSON
       </button>
@@ -62,7 +62,7 @@ export function ExportAllButton() {
         type="button"
         disabled={busy}
         onClick={() => exportAll("md")}
-        className="px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-700 text-xs hover:bg-zinc-50 disabled:opacity-50"
+        className="px-3 py-1.5 rounded-lg border border-line text-stone-700 text-xs hover:bg-stone-50 disabled:opacity-50"
       >
         导出全部 Markdown
       </button>
