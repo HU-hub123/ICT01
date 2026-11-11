@@ -51,6 +51,17 @@ export const ROLE_LABELS: Record<OpRole, string> = {
   analyze_dynamics: "分析动态",
 };
 
+/** 每个认知操作角色的大白话解释（界面上以提示/说明展示） */
+export const ROLE_NOTES: Record<OpRole, string> = {
+  find_problem: "先把问题看清楚：它到底在问什么",
+  generate_explanation: "给出一套说得通的解释",
+  verify_hypothesis: "检验某个猜测站不站得住",
+  judge_probability: "估一估可能性有多大",
+  compare_options: "在几个选项之间做比较",
+  check_bias: "检查自己可能犯的思维偏差",
+  analyze_dynamics: "看事情会怎么随着时间演变",
+};
+
 export interface SourceRef {
   label: string;
   kind: "book" | "paper" | "encyclopedia" | "course" | "article" | "talk";

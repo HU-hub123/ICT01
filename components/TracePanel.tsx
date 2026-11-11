@@ -24,7 +24,7 @@ export function TracePanel({
         className="w-full text-left flex items-center justify-between text-sm font-semibold text-zinc-900"
       >
         <span>
-          🔍 溯源回放：AI 是怎么一步步得出这个答案的（{steps.length} 个阶段全部留档）
+          🔍 看看它是怎么一步步想出来的（每一步都留档，可回放）
         </span>
         <span className="text-zinc-400 font-normal">{open ? "收起 ▲" : "展开 ▼"}</span>
       </button>

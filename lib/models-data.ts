@@ -1,5 +1,5 @@
 /**
- * 内置思维模型库（精选 30 个，可溯源）
+ * 内置思维模型库（精选 42 个，可溯源；含哲学与统计视角）
  *
  * 每个模型包含：
  * - role: 认知操作角色（发现问题/生成解释/验证假设/判断概率/比较选择/检查偏差/分析动态）
@@ -645,6 +645,271 @@ export const MODELS: ModelDef[] = [
         label: "Rittel & Webber (1973), Dilemmas in a General Theory of Planning",
         kind: "paper",
         url: "https://doi.org/10.1007/BF01405730",
+      },
+    ],
+  },
+  // ============ 哲学视角（v0.6.0 新增）============
+  {
+    id: "control-dichotomy",
+    name: "控制二分法",
+    nameEn: "Control Dichotomy",
+    role: "compare_options",
+    scaffoldAction:
+      "把这件事拆成两栏：我能改变的部分 / 我改变不了的部分；把力气只放在第一栏。",
+    definition:
+      "爱比克泰德的核心练习：判断事物中哪些取决于自己（判断、意愿、行动），哪些不取决于自己（他人、外境、结果），只在能控制的部分用力。",
+    appliesWhen: "情绪与精力被不可控因素消耗（他人的反应、市场波动、结果好坏）时。",
+    failsWhen: "把所有责任都推给“不可控”，变成消极回避时；它要求先穷尽自己能做的。",
+    tags: ["控制", "可控", "放手", "焦虑", "精力", "情绪"],
+    tensionWith: ["escalation-of-commitment"],
+    lineage: "斯多葛学派；“接受不能改变的”与“承诺升级”的执着恰好相对。",
+    sources: [
+      { label: "爱比克泰德《手册》(Enchiridion)", kind: "book" },
+      { label: "马可·奥勒留《沉思录》", kind: "book" },
+    ],
+  },
+  {
+    id: "socratic-questioning",
+    name: "苏格拉底诘问",
+    nameEn: "Socratic Questioning",
+    role: "find_problem",
+    scaffoldAction:
+      "连问三个“为什么”：你的结论依据是什么？如果这条依据错了会怎样？这个词到底指什么？",
+    definition:
+      "通过持续追问定义、前提与证据，暴露思考中的含混与矛盾，直到问题以更清楚的样子出现。",
+    appliesWhen: "讨论僵住、概念模糊、大家都“感觉对”但说不出理由时。",
+    failsWhen: "问题本身已有清晰定义与充分证据时，反复诘问只是拖延。",
+    tags: ["追问", "依据", "定义", "为什么", "前提", "质疑"],
+    tensionWith: ["confirmation-bias"],
+    lineage: "苏格拉底方法；与确认偏差相反——它逼你面对反例。",
+    sources: [
+      { label: "柏拉图《申辩篇》《美诺篇》", kind: "book" },
+      {
+        label: "Paul & Elder (2006), The Art of Socratic Questioning",
+        kind: "book",
+      },
+    ],
+  },
+  {
+    id: "golden-mean",
+    name: "中道",
+    nameEn: "Golden Mean",
+    role: "compare_options",
+    scaffoldAction:
+      "别在“全做”和“都不做”之间二选一：先找出两个极端的中间那个“刚刚好”的程度。",
+    definition:
+      "亚里士多德的实践智慧：德性位于两种极端之间（如勇敢在鲁莽与怯懦之间），具体中点由情境决定。",
+    appliesWhen: "选项呈现为两个极端、且各有明显代价时。",
+    failsWhen: "问题需要明确表态或定量优化时，和稀泥反而误事。",
+    tags: ["中道", "适度", "极端", "权衡", "分寸"],
+    tensionWith: ["expected-value"],
+    lineage: "与期望值分析的“最优化”取向形成温和张力：适度 vs 最优。",
+    sources: [
+      { label: "亚里士多德《尼各马可伦理学》第二卷", kind: "book" },
+      {
+        label: "Stanford Encyclopedia of Philosophy: Aristotle's Ethics",
+        kind: "encyclopedia",
+        url: "https://plato.stanford.edu/entries/aristotle-ethics/",
+      },
+    ],
+  },
+  {
+    id: "occams-razor",
+    name: "奥卡姆剃刀",
+    nameEn: "Occam's Razor",
+    role: "generate_explanation",
+    scaffoldAction:
+      "若两种解释都说得通，先假设简单的那个；等真的有反例，再考虑复杂的那个。",
+    definition:
+      "在解释力相近时，优先选择假设更少、结构更简单的解释（常被归因于奥卡姆的威廉，其精确表述出自后世）。",
+    appliesWhen: "出现多个都能自圆其说的解释、需要先取一个继续验证时。",
+    failsWhen: "简单解释已被证据否定，却仍坚持“简单即正确”时——那会变成偷懒。",
+    tags: ["简单", "解释", "假设", "剃刀", "奥卡姆"],
+    tensionWith: ["bayesian-updating"],
+    lineage: "与贝叶斯更新互补：先验偏好简单模型，证据到了就要更新。",
+    sources: [
+      {
+        label: "Stanford Encyclopedia of Philosophy: Simplicity",
+        kind: "encyclopedia",
+        url: "https://plato.stanford.edu/entries/simplicity/",
+      },
+    ],
+  },
+  {
+    id: "veil-of-ignorance",
+    name: "无知之幕",
+    nameEn: "Veil of Ignorance",
+    role: "compare_options",
+    scaffoldAction:
+      "假设你不知道自己会站在哪一边（甲方还是乙方、赢家还是输家），再问这个方案公不公平。",
+    definition:
+      "罗尔斯的假设情境：在不知道自己身份与处境的“幕”后，人们会选出更公平的规则。",
+    appliesWhen: "方案会影响多方利益、你需要检验自己是否偏袒时。",
+    failsWhen: "把公平凌驾于效率与可行性之上、或各方利益本就完全不同质时。",
+    tags: ["公平", "立场", "规则", "多方", "偏袒"],
+    tensionWith: ["expected-value"],
+    lineage: "与期望值分析的“总收益”视角形成张力：公平 vs 效率。",
+    sources: [
+      { label: "罗尔斯《正义论》(1971)", kind: "book" },
+      {
+        label: "Stanford Encyclopedia of Philosophy: Original Position",
+        kind: "encyclopedia",
+        url: "https://plato.stanford.edu/entries/original-position/",
+      },
+    ],
+  },
+  {
+    id: "pragmatist-test",
+    name: "实用主义检验",
+    nameEn: "Pragmatic Test",
+    role: "verify_hypothesis",
+    scaffoldAction:
+      "别争“它本质上对不对”，先问：按这个理解行动，会不会带来可观察的差别？没有差别的争论先放下。",
+    definition:
+      "皮尔士与詹姆斯的思想：一个观念的意义在于它产生的实际差别；若两种说法在实践中毫无区别，争论就没有内容。",
+    appliesWhen: "陷入概念之争、或需要判断一个说法是否有实际后果时。",
+    failsWhen: "涉及原则性对错（而不只是效果）的议题时，实用主义会回避是非。",
+    tags: ["实用", "效果", "差别", "行动", "意义"],
+    tensionWith: ["falsification"],
+    lineage: "与证伪检验同属“可检验性”家族，但检验标准是效果而非真值。",
+    sources: [
+      {
+        label: "Peirce (1878), How to Make Our Ideas Clear",
+        kind: "paper",
+        url: "https://en.wikipedia.org/wiki/How_to_Make_Our_Ideas_Clear",
+      },
+      { label: "詹姆斯《实用主义》(1907)", kind: "book" },
+    ],
+  },
+  // ============ 统计与概率（v0.6.0 新增）============
+  {
+    id: "law-of-large-numbers",
+    name: "大数定律",
+    nameEn: "Law of Large Numbers",
+    role: "judge_probability",
+    scaffoldAction:
+      "先问样本量：一两次的好运或坏运说明不了趋势；多看几轮再下判断。",
+    definition:
+      "随着试验次数增加，样本平均值会逐渐接近真实期望；小样本里的波动不代表规律。",
+    appliesWhen: "根据少量观察（几次成交、几个月数据）判断趋势时。",
+    failsWhen: "过程本身发生了变化（政策、团队、市场），历史均值不再代表未来时。",
+    tags: ["样本", "次数", "波动", "运气", "趋势"],
+    tensionWith: ["learning-curve"],
+    lineage: "与学习曲线构成张力：改善是规律还是运气，要看样本够不够。",
+    sources: [
+      { label: "伯努利《推测术》(Ars Conjectandi, 1713)", kind: "book" },
+      { label: "Ross《A First Course in Probability》", kind: "book" },
+    ],
+  },
+  {
+    id: "simpsons-paradox",
+    name: "辛普森悖论",
+    nameEn: "Simpson's Paradox",
+    role: "check_bias",
+    scaffoldAction:
+      "分开看每一组再合并看整体：两组结论相反时，先问“是不是人群比例混在一起了”。",
+    definition:
+      "分组比较时都呈某一趋势，合并后却出现相反趋势——原因是不同组的人数比例不同。",
+    appliesWhen: "比较两个方案/两段时间的表现，且样本构成可能不同时。",
+    failsWhen: "分组本身就有偏（样本不可比），任何真/假差异都可能是选择偏差。",
+    tags: ["分组", "合并", "比例", "统计陷阱", "对比"],
+    tensionWith: ["base-rate"],
+    lineage: "统计悖论家族；与基本比率一样提醒“分母是谁”。",
+    sources: [
+      {
+        label: "Simpson (1951), The Interpretation of Interaction in Contingency Tables, JRSS-B",
+        kind: "paper",
+        url: "https://doi.org/10.1111/j.2517-6161.1951.tb00088.x",
+      },
+    ],
+  },
+  {
+    id: "hypothesis-testing",
+    name: "假设检验",
+    nameEn: "Hypothesis Testing",
+    role: "verify_hypothesis",
+    scaffoldAction:
+      "先写好“如果没变化，数据大概会长什么样”，再看实际数据像不像意外；p 值小 ≠ 一定有效。",
+    definition:
+      "先设定“无效应”的虚拟假设，计算观察到当前（或更极端）数据的概率，以此判断证据强度。",
+    appliesWhen: "有对照、有明确指标，需要判断差异是否只是随机波动时。",
+    failsWhen: "反复检验、挑指标、挑时段（p-hacking）时，结论几乎必然失真。",
+    tags: ["检验", "显著性", "p值", "差异", "随机"],
+    tensionWith: ["confirmation-bias"],
+    lineage: "与置信区间同属频率学派工具箱；与证伪检验同源但更依赖样本。",
+    sources: [
+      { label: "Fisher《The Design of Experiments》(1935)", kind: "book" },
+      {
+        label: "Wasserstein & Lazar (2016), ASA Statement on p-Values",
+        kind: "paper",
+        url: "https://doi.org/10.1080/00031305.2016.1154108",
+      },
+    ],
+  },
+  {
+    id: "confidence-interval",
+    name: "置信区间",
+    nameEn: "Confidence Interval",
+    role: "judge_probability",
+    scaffoldAction:
+      "别只记一个数：把它换成一个范围（例如“大概 45%–65%”），看你的结论在范围两端还成不成立。",
+    definition:
+      "由样本估计出的一个区间；在重复抽样下，约 95% 的此类区间会覆盖真实值（并非“95% 概率真值在里面”）。",
+    appliesWhen: "只有抽样数据、需要说明不确定程度时。",
+    failsWhen: "把区间当成“真值一定在里面”的承诺，或忽略样本偏差时。",
+    tags: ["区间", "范围", "不确定", "误差", "抽样"],
+    tensionWith: ["anchoring"],
+    lineage: "与锚定效应相对：拒绝被单个数字钉住。",
+    sources: [
+      {
+        label: "Neyman (1937), Outline of a Theory of Statistical Estimation",
+        kind: "paper",
+        url: "https://doi.org/10.1098/rsta.1937.0005",
+      },
+      { label: "Wasserman《All of Statistics》(2004)", kind: "book" },
+    ],
+  },
+  {
+    id: "monte-carlo",
+    name: "蒙特卡洛模拟",
+    nameEn: "Monte Carlo Simulation",
+    role: "judge_probability",
+    scaffoldAction:
+      "算不清就用模拟：把不确定的变量设成范围，随机抽一万次，看结果分布最可能落在哪、最坏到什么程度。",
+    definition:
+      "用大量随机抽样来近似复杂系统的结果分布（以蒙特卡洛赌场得名）。",
+    appliesWhen: "多变量相互作用、没有解析公式、但能写出大致分布时。",
+    failsWhen: "输入分布本身是瞎猜的——模拟只会把你的假设放大成“精确结果”。",
+    tags: ["模拟", "分布", "随机", "情景", "最坏情况"],
+    tensionWith: ["expected-value"],
+    lineage: "与期望值分析互补：期望值给一个数，模拟给一个分布。",
+    sources: [
+      {
+        label: "Metropolis & Ulam (1949), The Monte Carlo Method, JASA",
+        kind: "paper",
+        url: "https://doi.org/10.1080/01621459.1949.10483310",
+      },
+    ],
+  },
+  {
+    id: "gamblers-fallacy",
+    name: "赌徒谬误",
+    nameEn: "Gambler's Fallacy",
+    role: "check_bias",
+    scaffoldAction:
+      "先问“这些事件彼此独立吗”：独立事件不会因为前面连赢/连输就更可能翻转。",
+    definition:
+      "错误地认为独立随机事件的概率会“自我平衡”（例如连开五次大，就觉得下次该开小）。",
+    appliesWhen: "观察连续结果、产生“该轮到另一边了”的直觉时。",
+    failsWhen: "事件之间确实有相关性（如抽签不放回、口碑传播）时，前次结果真的会影响下一次。",
+    tags: ["连赢", "该轮到", "独立", "随机", "运气"],
+    tensionWith: ["regression-to-mean"],
+    lineage: "与均值回归相邻但不同：回归是统计现象，赌徒谬误是对独立事件的误解。",
+    sources: [
+      {
+        label: "Tversky & Kahneman (1971), Belief in the Law of Small Numbers",
+        kind: "paper",
+        url: "https://doi.org/10.1037/h0031322",
       },
     ],
   },

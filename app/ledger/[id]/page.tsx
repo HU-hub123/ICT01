@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MODEL_MAP } from "@/lib/models-data";
+import { getPlain } from "@/lib/plain-explain";
 import { store } from "@/lib/store";
 import { LayerLegend } from "@/components/LayerBadge";
 import { TaggedList } from "@/components/TaggedList";
@@ -12,6 +13,7 @@ import { ReviewForm } from "@/components/ReviewForm";
 import { DecisionGraph } from "@/components/DecisionGraph";
 import { ModelCompareTable } from "@/components/ModelCompareTable";
 import { ExportButtons } from "@/components/ExportButtons";
+import { SideOracle } from "@/components/SideOracle";
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +75,9 @@ export default async function LedgerDetail({
       </div>
 
       <div className="panel p-4 space-y-2">
-        <h2 className="font-semibold text-zinc-900">① 事实收口</h2>
+        <h2 className="serif text-[15px] font-semibold text-ink">
+          ① 先把「知道的」和「不知道的」分开
+        </h2>
         <p className="text-sm text-zinc-800">
           <b>核心判断点：</b>
           {record.factsRecap.coreJudgment}
@@ -87,7 +91,7 @@ export default async function LedgerDetail({
       </div>
 
       <div className="panel p-4 space-y-2">
-        <h2 className="font-semibold text-zinc-900">② 模型对阵（检索与选择理由）</h2>
+        <h2 className="serif text-[15px] font-semibold text-ink">② 挑几个角度来看</h2>
         <div className="grid sm:grid-cols-2 gap-2">
           {record.selections.map((sel) => {
             const m = MODEL_MAP[sel.modelId];
@@ -96,16 +100,17 @@ export default async function LedgerDetail({
               record.selections.some((s2) => s2.modelId === tid),
             );
             return (
-              <div key={sel.modelId} className="border border-zinc-200 rounded-lg p-3">
+              <div key={sel.modelId} className="border border-line rounded-xl p-3 bg-white/60">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-sm">{m.name}</span>
+                  <span className="font-medium text-sm text-stone-900">{m.name}</span>
                   {inTension && (
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
-                      ⚔️ 张力
+                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-100/80 text-amber-800">
+                      ⚔️ 和另一个角度有张力
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-zinc-500 mt-1 leading-5">{sel.reason}</p>
+                <p className="text-xs text-stone-600 mt-1 leading-5">{getPlain(m.id)}</p>
+                <p className="text-[11px] text-stone-400 mt-1 leading-5">{sel.reason}</p>
               </div>
             );
           })}
@@ -113,7 +118,7 @@ export default async function LedgerDetail({
       </div>
 
       <div className="space-y-3">
-        <h2 className="font-semibold text-zinc-900">③ 各模型独立推演</h2>
+        <h2 className="serif text-[15px] font-semibold text-ink">③ 让每个角度独立说话</h2>
         {record.arguments.map((a) => (
           <ArgumentCard key={a.modelId} arg={a} />
         ))}
@@ -126,12 +131,12 @@ export default async function LedgerDetail({
       />
 
       <div className="panel p-4 space-y-2">
-        <h2 className="font-semibold text-zinc-900">🗺 决策图：这次推演的骨架</h2>
+        <h2 className="serif text-[15px] font-semibold text-ink">推演关系图</h2>
         <DecisionGraph record={record} />
       </div>
 
       <div className="panel p-4 space-y-3">
-        <h2 className="font-semibold text-zinc-900">⑤ 综合结论（五层标注）</h2>
+        <h2 className="serif text-[15px] font-semibold text-ink">⑤ 收束成一句能行动的判断</h2>
         <LayerLegend />
         <TaggedList items={record.conclusion} />
       </div>
@@ -167,6 +172,8 @@ export default async function LedgerDetail({
       ) : (
         <ReviewForm recordId={record.id} />
       )}
+
+      <SideOracle question={record.question} />
     </div>
   );
 }

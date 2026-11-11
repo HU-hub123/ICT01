@@ -1,18 +1,18 @@
 import { LAYER_LABELS, LAYER_NOTES, type LayerKind } from "@/lib/types";
 
 const STYLES: Record<LayerKind, string> = {
-  fact: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  inference: "bg-sky-50 text-sky-700 border-sky-200",
-  assumption: "bg-amber-50 text-amber-700 border-amber-200",
-  missing: "bg-rose-50 text-rose-700 border-rose-200",
-  example_number: "bg-violet-50 text-violet-700 border-violet-200",
+  fact: "bg-emerald-50/80 text-emerald-700 border-emerald-200/70",
+  inference: "bg-sky-50/80 text-sky-700 border-sky-200/70",
+  assumption: "bg-amber-50/80 text-amber-700 border-amber-200/70",
+  missing: "bg-rose-50/80 text-rose-700 border-rose-200/70",
+  example_number: "bg-violet-50/80 text-violet-700 border-violet-200/70",
 };
 
 export function LayerBadge({ layer }: { layer: LayerKind }) {
   return (
     <span
       title={LAYER_NOTES[layer]}
-      className={`inline-block px-1.5 py-0.5 rounded text-xs border whitespace-nowrap ${STYLES[layer]}`}
+      className={`inline-block px-1.5 py-0.5 rounded-md text-[11px] border whitespace-nowrap ${STYLES[layer]}`}
     >
       {LAYER_LABELS[layer]}
     </span>

@@ -25,18 +25,20 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="antialiased min-h-screen flex flex-col">
-        <header className="border-b border-zinc-200 bg-white/90 backdrop-blur sticky top-0 z-40">
+        <header className="border-b border-line bg-paper/85 backdrop-blur sticky top-0 z-40">
           <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
-            <Link href="/" className="font-semibold text-zinc-900 whitespace-nowrap">
-              认知脚手架
-              <span className="hidden sm:inline text-zinc-400 font-normal"> · 可溯源思考工作台</span>
+            <Link href="/" className="font-semibold text-ink whitespace-nowrap">
+              <span className="serif text-[15px]">认知脚手架</span>
+              <span className="hidden sm:inline text-stone-400 font-normal text-sm">
+                {" "}· 可溯源思考工作台
+              </span>
             </Link>
-            <nav className="flex items-center gap-1 text-sm overflow-x-auto whitespace-nowrap ml-2">
+            <nav className="flex items-center gap-0.5 text-sm overflow-x-auto whitespace-nowrap ml-2">
               {nav.map((n) => (
                 <Link
                   key={n.href}
                   href={n.href}
-                  className="px-2.5 py-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
+                  className="px-3 py-1.5 rounded-lg text-stone-600 hover:text-ink hover:bg-stone-100/70 transition-colors"
                 >
                   {n.label}
                 </Link>
@@ -45,7 +47,7 @@ export default function RootLayout({
           </div>
         </header>
         <main className="flex-1">{children}</main>
-        <footer className="border-t border-zinc-200 py-6 text-center text-xs text-zinc-400">
+        <footer className="border-t border-line py-6 text-center text-xs text-stone-400">
           认知脚手架 · 面向第十一届华为 ICT 大赛创新赛赛题一 · 我们保存结论，也保存得到结论的过程
         </footer>
       </body>

@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
+  --background: #f7f4ef; /* 宣纸 */
+  --foreground: #26221d; /* 墨色 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-paper: #f7f4ef;
+  --color-ink: #26221d;
+  --color-line: #e6e0d5;
 }
 
 body {
@@ -15,11 +18,22 @@ body {
   color: var(--foreground);
   font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 卡片与面板基础样式 */
+/* 标题用衬线，安静一点 */
+h1,
+h2,
+.serif {
+  font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", Georgia,
+    "Times New Roman", serif;
+  letter-spacing: 0.01em;
+}
+
+/* 卡片与面板：淡纸、细线、极轻阴影 */
 .panel {
-  @apply bg-white border border-zinc-200 rounded-xl;
+  @apply bg-white/75 border border-line rounded-2xl;
+  box-shadow: 0 1px 2px rgba(38, 34, 29, 0.04);
 }
 
 /* 演示模式的分段揭示动画 */
@@ -42,4 +56,3 @@ body {
     animation: none;
   }
 }
-

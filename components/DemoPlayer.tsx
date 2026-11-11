@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { AnalysisRecord, PipelineStep } from "@/lib/types";
 import { streamAnalyze, saveLedger } from "@/lib/sse-client";
 import { MODEL_MAP } from "@/lib/models-data";
+import { getPlain } from "@/lib/plain-explain";
 import { LayerLegend, LayerBadge } from "./LayerBadge";
 import { TaggedList } from "./TaggedList";
 import { ArgumentCard } from "./ArgumentCard";
@@ -245,7 +246,7 @@ export function DemoPlayer() {
               {after("facts") && (
                 <div id="demo-facts" className="panel p-4 space-y-3 reveal scroll-mt-24">
                   <h2 className="font-semibold text-zinc-900">
-                    ① 事实收口：先分清「知道的」和「不知道的」
+                    ① 先把「知道的」和「不知道的」分开
                   </h2>
                   <p className="text-sm text-zinc-800">
                     <b>核心判断点：</b>
@@ -287,7 +288,7 @@ export function DemoPlayer() {
               {after("models") && (
                 <div id="demo-models" className="panel p-4 space-y-2 reveal scroll-mt-24">
                   <h2 className="font-semibold text-zinc-900">
-                    ② 模型对阵：为什么是这几个模型（含检索与选择理由）
+                    ② 挑几个角度来看
                   </h2>
                   <div className="grid sm:grid-cols-2 gap-2">
                     {record.selections.map((sel) => {
@@ -312,7 +313,10 @@ export function DemoPlayer() {
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-zinc-500 mt-1 leading-5">
+                          <p className="text-xs text-stone-600 mt-1 leading-5">
+                            {MODEL_MAP[sel.modelId] ? getPlain(sel.modelId) : ""}
+                          </p>
+                          <p className="text-[11px] text-stone-400 mt-1 leading-5">
                             选择理由：{sel.reason}
                           </p>
                         </div>
@@ -325,7 +329,7 @@ export function DemoPlayer() {
               {after("arguments") && (
                 <div id="demo-arguments" className="space-y-3 reveal scroll-mt-24">
                   <h2 className="font-semibold text-zinc-900">
-                    ③ 各模型独立推演（先打架，不合谋）
+                    ③ 让每个角度独立说话
                   </h2>
                   {record.arguments.map((a) => (
                     <ArgumentCard key={a.modelId} arg={a} />
@@ -345,14 +349,14 @@ export function DemoPlayer() {
 
               {after("graph") && (
                 <div id="demo-graph" className="panel p-4 space-y-2 reveal scroll-mt-24">
-                  <h2 className="font-semibold text-zinc-900">🗺 决策图：这次推演的骨架</h2>
+                  <h2 className="font-semibold text-zinc-900">推演关系图</h2>
                   <DecisionGraph record={record} />
                 </div>
               )}
 
               {after("conclusion") && (
                 <div id="demo-conclusion" className="panel p-4 space-y-3 reveal scroll-mt-24">
-                  <h2 className="font-semibold text-zinc-900">⑤ 综合结论（每句话都标了成色）</h2>
+                  <h2 className="font-semibold text-zinc-900">⑤ 收束成一句能行动的判断</h2>
                   <LayerLegend />
                   <TaggedList items={record.conclusion} />
                 </div>
