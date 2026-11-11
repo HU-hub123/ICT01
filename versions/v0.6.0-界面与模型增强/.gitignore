@@ -1,0 +1,50 @@
+# 依赖与构建产物
+node_modules/
+.next/
+out/
+dist/
+build/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# 环境变量与密钥（绝不入库）
+.env
+.env.*
+!.env.example
+
+# 本机 pnpm 配置（store 指向本机 E 盘，不跨机提交）
+.npmrc
+
+# 本地数据与缓存
+data/
+*.db
+*.sqlite
+*.sqlite3
+.turbo/
+.vite/
+*.tsbuildinfo
+
+# 日志
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.pem
+
+# vercel
+.vercel

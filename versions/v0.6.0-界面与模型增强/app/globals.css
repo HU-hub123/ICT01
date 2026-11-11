@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f4ef; /* 宣纸 */
+  --foreground: #26221d; /* 墨色 */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-paper: #f7f4ef;
+  --color-ink: #26221d;
+  --color-line: #e6e0d5;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 标题用衬线，安静一点 */
+h1,
+h2,
+.serif {
+  font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", Georgia,
+    "Times New Roman", serif;
+  letter-spacing: 0.01em;
+}
+
+/* 卡片与面板：淡纸、细线、极轻阴影 */
+.panel {
+  @apply bg-white/75 border border-line rounded-2xl;
+  box-shadow: 0 1px 2px rgba(38, 34, 29, 0.04);
+}
+
+/* 演示模式的分段揭示动画 */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal {
+  animation: reveal 0.5s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+}
