@@ -1,5 +1,5 @@
 import { jsonResponse } from "@/lib/http";
-import { store } from "@/lib/store";
+import { getStore } from "@/lib/store";
 
 export const runtime = "nodejs";
 
@@ -9,6 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  const store = await getStore();
   const record = await store.get(id);
   if (!record) {
     return jsonResponse({ error: "未找到该认知账本条目" }, 404);
@@ -37,6 +38,7 @@ export async function POST(
   if (!actualOutcome) {
     return jsonResponse({ error: "请先填写实际结果" }, 400);
   }
+  const store = await getStore();
   const updated = await store.addReview(id, {
     actualOutcome,
     overturnedAssumptions: Array.isArray(body?.overturnedAssumptions)

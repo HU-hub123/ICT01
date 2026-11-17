@@ -1,14 +1,17 @@
 /**
- * 认知账本存储：适配器接口 + 本地 JSON 文件实现
+ * 认知账本存储：适配器接口 + 本地 JSON / 华为云 RDS(Postgres) 双实现
  *
- * 华为云码道适配点（v0.4.0）：
- * - LedgerStore 是抽象接口，未来可新增 RdsLedgerStore（华为云 RDS PostgreSQL/MySQL）
- *   与 Redis 会话缓存实现，通过环境变量切换，业务代码零改动。
+ * 切换方式（无需改业务代码）：
+ *   LEDGER_STORE=file        默认，本地 JSON 文件（单机/演示）
+ *   LEDGER_STORE=postgres    RDS/Postgres，需同时配置 RDS_CONNECTION_STRING
+ *
+ * 页面与 API 统一通过 `await getStore()` 获取实例。
  */
 
 import { promises as fs } from "fs";
 import path from "path";
 import type { AnalysisRecord, ReviewResult } from "./types";
+import { PostgresLedgerStore, type Queryable } from "./store-postgres";
 
 export interface LedgerStore {
   list(): Promise<AnalysisRecord[]>;
@@ -92,4 +95,28 @@ class FileLedgerStore implements LedgerStore {
   }
 }
 
-export const store: LedgerStore = new FileLedgerStore();
+let cachedStore: Promise<LedgerStore> | null = null;
+
+/** 按环境变量选择存储实现（进程内缓存，Postgres 连接池复用） */
+export function getStore(): Promise<LedgerStore> {
+  if (!cachedStore) {
+    cachedStore = (async (): Promise<LedgerStore> => {
+      const usePostgres =
+        process.env.LEDGER_STORE === "postgres" && !!process.env.RDS_CONNECTION_STRING;
+      if (!usePostgres) return new FileLedgerStore();
+
+      const mod = (await import("pg")) as unknown as { default?: unknown };
+      const pg = (mod.default ?? mod) as unknown as {
+        Pool: new (opts: { connectionString: string; max?: number }) => unknown;
+      };
+      const pool = new pg.Pool({
+        connectionString: process.env.RDS_CONNECTION_STRING!,
+        max: 10,
+      });
+      const store = new PostgresLedgerStore(pool as Queryable);
+      await store.init();
+      return store;
+    })();
+  }
+  return cachedStore;
+}

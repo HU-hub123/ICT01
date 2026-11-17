@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { MODEL_MAP } from "@/lib/models-data";
 import { computeStats } from "@/lib/stats";
-import { store } from "@/lib/store";
+import { getStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export default async function StatsPage() {
+  const store = await getStore();
   const records = await store.list();
   const s = computeStats(records);
 

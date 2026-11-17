@@ -1,0 +1,344 @@
+{
+  "version": 1,
+  "note": "认知脚手架评测集：覆盖 6 类决策场景。missingGroups 为「期望被识别出的缺失信息」关键词组（组内任一命中即算通过）；tensionRequired 表示应选出至少一对张力模型。断言实现见 eval/checks.ts。",
+  "cases": [
+    {
+      "id": "prod-01",
+      "category": "产品取舍",
+      "question": "一个已经投入 18 个月的产品，留存不温不火，到底该不该继续？",
+      "extraFacts": "B 端 SaaS 产品，客单价约 3 万元/年，目前月留存约 60%，近三个月留存无明显提升，团队还想再投入半年。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["口径", "统计口径", "定义", "含义"],
+          ["CAC", "获客成本", "LTV", "生命周期价值"],
+          ["基准", "行业", "参照", "对比"]
+        ]
+      }
+    },
+    {
+      "id": "prod-02",
+      "category": "产品取舍",
+      "question": "现有功能要不要加一个 AI 助手入口，还是把核心体验继续做深？",
+      "extraFacts": "团队 6 人，已有付费用户约 300 个，当前留存稳定但增长停滞。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["目标", "指标", "留存", "增长"],
+          ["成本", "人力", "预算", "工期"]
+        ]
+      }
+    },
+    {
+      "id": "prod-03",
+      "category": "产品取舍",
+      "question": "要不要把免费版改成按量收费？",
+      "extraFacts": "免费用户占比 90%，付费转化率约 2%，服务器成本每月约 4 万元。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["转化", "付费", "收入"],
+          ["流失", "替代", "竞品", "价格"]
+        ]
+      }
+    },
+    {
+      "id": "prod-04",
+      "category": "产品取舍",
+      "question": "团队想做一个新功能，但我直觉它是伪需求，该怎么验证？",
+      "extraFacts": "",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["用户", "访谈", "样本"],
+          ["证据", "数据", "行为", "指标"]
+        ]
+      }
+    },
+    {
+      "id": "career-01",
+      "category": "职业选择",
+      "question": "两份 offer 都不错：一份钱多但成长慢，一份钱少但成长快，怎么选？",
+      "extraFacts": "应届毕业生，第一份工作，家庭没有经济压力，五年内没有买房计划。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["团队", "导师", "成长", "路径"],
+          ["收入", "现金", "薪酬"],
+          ["行业", "公司", "业务"]
+        ]
+      }
+    },
+    {
+      "id": "career-02",
+      "category": "职业选择",
+      "question": "要不要在 30 岁前转行做 AI 产品？",
+      "extraFacts": "目前做传统行业项目管理 6 年，年薪 30 万，没有编程基础。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["技能", "能力", "基础", "门槛"],
+          ["时间", "周期", "成本", "试错"]
+        ]
+      }
+    },
+    {
+      "id": "career-03",
+      "category": "职业选择",
+      "question": "现在的工作稳定但没激情，要不要裸辞？",
+      "extraFacts": "存款可以支撑 8 个月，房贷每月 8000 元。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["现金", "存款", "开销", "期限", "支撑"],
+          ["方向", "目标", "下一步", "计划"]
+        ]
+      }
+    },
+    {
+      "id": "career-04",
+      "category": "职业选择",
+      "question": "领导让我接一个跨部门项目，做得好没人看见、做砸了要背锅，接不接？",
+      "extraFacts": "",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["资源", "权限", "支持", "决策权"],
+          ["目标", "标准", "考核", "验收"]
+        ]
+      }
+    },
+    {
+      "id": "invest-01",
+      "category": "投入与投资",
+      "question": "手里有 20 万，要不要全部投进朋友的创业公司？",
+      "extraFacts": "对方做硬件，团队 4 人，产品未上市，没有签订正式投资协议。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["条款", "协议", "股权", "退出", "法律"],
+          ["风险", "承受", "损失", "最坏"]
+        ]
+      }
+    },
+    {
+      "id": "invest-02",
+      "category": "投入与投资",
+      "question": "这个副业投了 3 万，半年只回本 2000，要不要继续？",
+      "extraFacts": "每月投入约 40 小时，客户主要来自一个平台。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["收入", "回本", "成本", "毛利"],
+          ["渠道", "依赖", "平台", "可持续"]
+        ]
+      }
+    },
+    {
+      "id": "invest-03",
+      "category": "投入与投资",
+      "question": "要不要花半年工资去读一个在职 MBA？",
+      "extraFacts": "目前在外企做运营，晋升遇到瓶颈，目标是转管理岗。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["回报", "收益", "晋升", "人脉"],
+          ["时间", "机会成本", "替代", "自学"]
+        ]
+      }
+    },
+    {
+      "id": "invest-04",
+      "category": "投入与投资",
+      "question": "想买一台 2 万的相机接商单，多久回本算划算？",
+      "extraFacts": "目前是兼职摄影，单次报价 800 元，每月能接 2-3 单。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["订单", "接单", "需求", "稳定"],
+          ["成本", "折旧", "维护", "时间"]
+        ]
+      }
+    },
+    {
+      "id": "team-01",
+      "category": "团队与组织",
+      "question": "团队里有个资深工程师效率越来越低，要不要劝退？",
+      "extraFacts": "他在公司 5 年，掌握核心模块，最近半年产出明显下降。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["原因", "状态", "沟通", "反馈"],
+          ["替代", "交接", "成本", "风险"]
+        ]
+      }
+    },
+    {
+      "id": "team-02",
+      "category": "团队与组织",
+      "question": "要不要把每周的例会改成两小时深度讨论？",
+      "extraFacts": "团队 8 人，目前每人每周会议约 6 小时，项目经常延期。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["议程", "议题", "目标", "产出"],
+          ["时间", "成本", "打扰", "专注"]
+        ]
+      }
+    },
+    {
+      "id": "team-03",
+      "category": "团队与组织",
+      "question": "合伙人想引入一个新股东，我要不要同意？",
+      "extraFacts": "公司三人合伙，股权比例为 45/35/20，新股东愿意出资 100 万。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["股权", "稀释", "控制权", "投票"],
+          ["条款", "协议", "退出", "贡献"]
+        ]
+      }
+    },
+    {
+      "id": "team-04",
+      "category": "团队与组织",
+      "question": "团队连续加班三个月还是延期，要不要砍需求？",
+      "extraFacts": "距离发布还有一个月，客户已确认的范围包含 12 个功能。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["优先级", "核心", "必须", "范围"],
+          ["客户", "承诺", "合同", "违约"]
+        ]
+      }
+    },
+    {
+      "id": "life-01",
+      "category": "生活与消费",
+      "question": "要不要提前还房贷，还是拿这笔钱去理财？",
+      "extraFacts": "房贷利率 4.2%，剩余 100 万，手头有 30 万闲置资金。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["收益", "利率", "风险", "流动性"],
+          ["期限", "现金流", "备用金", "应急"]
+        ]
+      }
+    },
+    {
+      "id": "life-02",
+      "category": "生活与消费",
+      "question": "该不该为了通勤近一点，每月多花 1500 元租更好的房子？",
+      "extraFacts": "目前单程通勤 70 分钟，月收入 1.5 万。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["时间", "成本", "折算", "价值"],
+          ["预算", "收入", "支出", "承受"]
+        ]
+      }
+    },
+    {
+      "id": "life-03",
+      "category": "生活与消费",
+      "question": "要不要花三个月准备一次马拉松？我身体一般，膝盖有旧伤。",
+      "extraFacts": "",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["医生", "检查", "伤", "康复", "评估"],
+          ["目标", "时间", "强度", "计划"]
+        ]
+      }
+    },
+    {
+      "id": "life-04",
+      "category": "生活与消费",
+      "question": "朋友借钱 5 万，说三个月还，借不借？",
+      "extraFacts": "认识 10 年，对方目前经营一家小店。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["还款", "能力", "收入", "经营"],
+          ["凭证", "借条", "协议", "期限"]
+        ]
+      }
+    },
+    {
+      "id": "info-01",
+      "category": "信息判断",
+      "question": "看到一篇「普通人靠 AI 月入十万」的文章，这可信吗？我要不要入场？",
+      "extraFacts": "",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["来源", "样本", "案例", "幸存者", "幸存"],
+          ["成本", "门槛", "竞争", "周期"]
+        ]
+      }
+    },
+    {
+      "id": "info-02",
+      "category": "信息判断",
+      "question": "一个专家说某行业三年内会被 AI 取代，我要不要转行？",
+      "extraFacts": "我在这个行业做了 8 年，目前是中层管理。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["证据", "数据", "来源", "依据"],
+          ["时间", "范围", "局部", "细分", "岗位"]
+        ]
+      }
+    },
+    {
+      "id": "info-03",
+      "category": "信息判断",
+      "question": "网上都说今年是买房的最好时机，我该信吗？",
+      "extraFacts": "准备在二线城市买首套自住房。",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["来源", "依据", "利益", "立场"],
+          ["需求", "预算", "收入", "还款"]
+        ]
+      }
+    },
+    {
+      "id": "info-04",
+      "category": "信息判断",
+      "question": "同事强烈推荐一个「稳赚不赔」的项目，说是内部渠道，怎么判断？",
+      "extraFacts": "",
+      "expect": {
+        "tensionRequired": true,
+        "minCheckpoints": 1,
+        "missingGroups": [
+          ["风险", "本金", "亏损", "保本"],
+          ["资质", "监管", "合同", "资金", "托管"]
+        ]
+      }
+    }
+  ]
+}

@@ -28,6 +28,7 @@ data/
 .turbo/
 .vite/
 *.tsbuildinfo
+eval/reports/
 
 # 日志
 *.log

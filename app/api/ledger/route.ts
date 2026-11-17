@@ -1,11 +1,12 @@
 import { jsonResponse } from "@/lib/http";
-import { store } from "@/lib/store";
+import { getStore } from "@/lib/store";
 import type { AnalysisRecord } from "@/lib/types";
 
 export const runtime = "nodejs";
 
 /** GET /api/ledger —— 认知账本列表（按时间倒序） */
 export async function GET() {
+  const store = await getStore();
   const records = await store.list();
   return jsonResponse({ items: records });
 }
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
   ) {
     return jsonResponse({ error: "记录结构不完整，无法保存" }, 400);
   }
+  const store = await getStore();
   const saved = await store.save(record);
   return jsonResponse({ record: saved });
 }

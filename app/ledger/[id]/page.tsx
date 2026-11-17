@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MODEL_MAP } from "@/lib/models-data";
 import { getPlain } from "@/lib/plain-explain";
-import { store } from "@/lib/store";
+import { getStore } from "@/lib/store";
 import { LayerLegend } from "@/components/LayerBadge";
 import { TaggedList } from "@/components/TaggedList";
 import { ArgumentCard } from "@/components/ArgumentCard";
@@ -23,6 +23,7 @@ export default async function LedgerDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const store = await getStore();
   const record = await store.get(id);
   if (!record) notFound();
   const all = await store.list();

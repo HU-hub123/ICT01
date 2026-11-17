@@ -1,6 +1,7 @@
 import { llmStatus } from "@/lib/deepseek";
 import { jsonResponse } from "@/lib/http";
 import { runAnalysis } from "@/lib/pipeline";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { HistoryTurn } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -36,6 +37,17 @@ export async function POST(req: Request) {
           "未配置 DEEPSEEK_API_KEY：请在项目根目录 .env 中填入真实的 DeepSeek API Key 后重启服务（.env 不会被提交到 Git）。",
       },
       500,
+    );
+  }
+
+  const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
+  const rate = await checkRateLimit(ip);
+  if (!rate.allowed) {
+    return jsonResponse(
+      {
+        error: `请求过于频繁：每小时最多 ${rate.limit} 次推演（当前第 ${rate.count} 次），请稍后再试。`,
+      },
+      429,
     );
   }
 

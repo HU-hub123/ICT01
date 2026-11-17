@@ -21,6 +21,7 @@
 | v0.5.0-功能完善 | 决策图可视化 / 演示模式（内置解说字幕，可自动录屏）/ 模型并排对照 / 账本导出（JSON+Markdown）/ 追问链可视化 / 移动端与导航打磨 | ✅ 已实现 |
 | v0.6.0-界面与模型增强 | 界面雅致化（宣纸底 / 宋体标题 / 柔和卡片）/ 简明·详尽切换（长内容可折叠）/ 术语通俗化（每个模型配大白话）/ 模型扩至 42 个（+6 哲学、+6 统计与概率）/ 旁参小单元（黄历·星象·六爻，默认折叠、仅供参照） | ✅ 已实现 |
 | v0.6.1-品牌配色 | 全站换用 DeepSeek 品牌蓝（主色 #4D6BFE / 冷白底 / 深蓝字幕条）；主界面与演示页视觉统一（同一套卡片、字号、按钮、色板） | ✅ 已实现 |
+| v0.7.0-质量与云存储 | 评测集（6 类 24 题）+ 确定性断言 + 可选 LLM 评审 + CI 回归；真实 Postgres（RDS）账本适配器 + Redis 限流（内存降级）；docker-compose 带 postgres/redis；存储与限流单测 | ✅ 已实现 |
 
 ## 目标赛事
 
@@ -35,7 +36,21 @@
 - PRD 草案：[versions/v0.1.0-需求对齐/docs/02-PRD草案-v0.1-需求对齐.md](versions/v0.1.0-需求对齐/docs/02-PRD草案-v0.1-需求对齐.md)
 - 产品设计与防黑盒机制：[docs/产品设计与防黑盒机制.md](docs/产品设计与防黑盒机制.md)
 - 演示指南（答辩用）：[docs/演示指南.md](docs/演示指南.md)
+- 评测与数据采集方案：[docs/评测与数据采集方案.md](docs/评测与数据采集方案.md)
 - 华为云码道适配说明：[docs/华为云码道-赛题一适配.md](docs/华为云码道-赛题一适配.md)
+
+## 评测与质量（v0.7.0）
+
+```bash
+pnpm test                        # 单测：断言（不联网）+ 存储/限流适配器
+node eval/run-eval.mjs           # 全量评测：24 题（需真实 Key，约 10-15 分钟）
+LIMIT=6 node eval/run-eval.mjs   # 冒烟：6 题
+EVAL_JUDGE=1 LIMIT=6 node eval/run-eval.mjs   # 附带 LLM 评审打分
+```
+
+- 题库 `eval/cases.json`：产品 / 职业 / 投资 / 团队 / 生活 / 信息判断 6 类；
+- 断言 `eval/checks.mjs`：五层标注、数字示例化、张力对、缺失信息覆盖、停止条件可检验、过度断言；
+- 报告写入 `eval/reports/`；CI 里单测必跑，评测任务仅在配置 `DEEPSEEK_API_KEY` 时运行。
 
 ## 项目结构
 
@@ -57,16 +72,20 @@ lib/
   prompts.ts         五阶段提示词（JSON 契约 + 反幻觉铁律）
   pipeline.ts        固定五阶段流水线（防死循环：无迭代、有收敛）
   deepseek.ts        DeepSeek Provider（真实调用，超时/重试/明确报错）
-  store.ts           存储适配器（本地 JSON ↔ 预留华为云 RDS/Redis）
+  store.ts           存储适配器（本地 JSON ↔ 华为云 RDS/Postgres，环境变量切换）
+  store-postgres.ts  Postgres 账本实现（ledger 表 + jsonb，自动建表）
+  rate-limit.ts      Redis 限流（INCR/EXPIRE）+ 内存降级
   stats.ts           复盘统计（长期认知轨迹、常犯偏差信号）
   sse-client.ts      共享 SSE 客户端（/api/analyze 流式解析、账本保存）
-docs/                产品设计、演示指南、华为云码道适配说明
-versions/            按版本归档的完整快照（v0.1.0 → v0.5.0）
+eval/                评测集（24 题）、断言检查、运行器、LLM 评审
+tests/               存储与限流单测（pg-mem / ioredis-mock）
+docs/                产品设计、演示指南、评测方案、华为云码道适配说明
+versions/            按版本归档的完整快照（v0.1.0 → v0.7.0）
 ```
 
 ## 技术方案（已实现）
 
-Next.js 15 全栈（TypeScript + Tailwind）· DeepSeek 真实推理（OpenAI 兼容，可换华为 ModelArts）· 存储适配层（本地 JSON 文件 ↔ 预留华为云 RDS/Redis）· 42 个可溯源思维模型
+Next.js 15 全栈（TypeScript + Tailwind）· DeepSeek 真实推理（OpenAI 兼容，可换华为 ModelArts）· 存储适配层（本地 JSON ↔ 华为云 RDS/Postgres 已实现）· Redis 限流 · 42 个可溯源思维模型
 
 ## 本地运行
 

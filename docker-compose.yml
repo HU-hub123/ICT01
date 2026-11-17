@@ -1,4 +1,5 @@
-# 本地一键启动（与华为云 CCE 部署保持同一镜像）
+# 本地一键启动（与华为云 CCE 部署同构）
+# 默认使用本地 JSON 存储；要用 Postgres/Redis 演示，取消 app 里的注释即可。
 services:
   app:
     build: .
@@ -8,8 +9,42 @@ services:
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
       - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
+      - RATE_LIMIT_PER_HOUR=${RATE_LIMIT_PER_HOUR:-30}
+      # - LEDGER_STORE=postgres
+      # - RDS_CONNECTION_STRING=postgres://cog:cog@db:5432/cog
+      # - REDIS_URL=redis://redis:6379
     volumes:
       - app-data:/app/data
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=cog
+      - POSTGRES_PASSWORD=cog
+      - POSTGRES_DB=cog
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cog"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 volumes:
   app-data:
+  pg-data:

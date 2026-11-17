@@ -1,9 +1,10 @@
 import { ModelLibrary } from "@/components/ModelLibrary";
-import { store } from "@/lib/store";
+import { getStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export default async function ModelsPage() {
+  const store = await getStore();
   const records = await store.list();
   const usage: Record<string, number> = {};
   for (const r of records) {
