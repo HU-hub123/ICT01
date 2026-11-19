@@ -20,7 +20,7 @@ export function DeleteRecordButton({
     e.preventDefault();
     e.stopPropagation();
     if (busy) return;
-    if (!window.confirm("删除这笔判断？账本记录不可恢复。")) return;
+    if (!window.confirm("移到回收站？7 天内可以恢复。")) return;
     setBusy(true);
     try {
       const res = await fetch(`/api/ledger/${id}`, { method: "DELETE" });

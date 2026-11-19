@@ -30,7 +30,7 @@ export function LedgerList({ items }: { items: AnalysisRecord[] }) {
   async function bulkDelete() {
     const ids = [...selected];
     if (ids.length === 0) return;
-    if (!window.confirm(`删除选中的 ${ids.length} 条判断？不可恢复。`)) return;
+    if (!window.confirm(`将选中的 ${ids.length} 条移到回收站？7 天内可恢复。`)) return;
     setBusy("bulk");
     try {
       const res = await fetch("/api/ledger", {
@@ -52,7 +52,7 @@ export function LedgerList({ items }: { items: AnalysisRecord[] }) {
 
   async function clearAll() {
     if (items.length === 0) return;
-    if (!window.confirm(`将清空全部 ${items.length} 条判断，不可恢复。确定吗？`)) return;
+    if (!window.confirm(`将全部 ${items.length} 条移到回收站？7 天内可恢复。`)) return;
     setBusy("all");
     try {
       const res = await fetch("/api/ledger", {
@@ -99,7 +99,7 @@ export function LedgerList({ items }: { items: AnalysisRecord[] }) {
             disabled={busy !== ""}
             className="text-xs px-3 py-1.5 rounded-full border border-rose-200 text-rose-600 hover:bg-rose-50 disabled:opacity-40"
           >
-            {busy === "all" ? "清空中…" : "清空账本"}
+            {busy === "all" ? "处理中…" : "全部删除"}
           </button>
         </div>
       </div>

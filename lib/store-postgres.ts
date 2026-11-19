@@ -1,14 +1,20 @@
 /**
  * Postgres（华为云 RDS）账本适配器
  *
- * 与 FileLedgerStore 实现同一接口，切换只需环境变量：
- *   LEDGER_STORE=postgres
- *   RDS_CONNECTION_STRING=postgres://user:pass@host:5432/db
- *
- * 测试：用 pg-mem 在内存里跑同一套 SQL（见 tests/store.test.mjs）。
+ * 与 FileLedgerStore 实现同一接口：软删除（deletedAt）→ 回收站 7 天 → 彻底删除。
+ * 切换：LEDGER_STORE=postgres + RDS_CONNECTION_STRING=...
+ * 测试：pg-mem 在内存里跑同一套 SQL（见 tests/store.test.mjs）。
  */
 import type { AnalysisRecord, ReviewResult } from "./types";
 import type { LedgerStore } from "./store";
+
+/** 与 store.ts 保持一致的回收站保留期（7 天）；本地定义避免运行时跨文件依赖 */
+const TRASH_RETENTION_MS = 7 * 24 * 3600 * 1000;
+
+function withinTrashRetention(deletedAt?: string): boolean {
+  if (!deletedAt) return false;
+  return Date.now() - new Date(deletedAt).getTime() <= TRASH_RETENTION_MS;
+}
 
 export interface Queryable {
   query(sql: string, params?: unknown[]): Promise<{ rows: Record<string, unknown>[] }>;
@@ -46,20 +52,29 @@ export class PostgresLedgerStore implements LedgerStore {
     }
   }
 
-  async list(): Promise<AnalysisRecord[]> {
+  private async allRecords(): Promise<AnalysisRecord[]> {
     const r = await this.db.query(`SELECT data FROM ledger ORDER BY created_at DESC`);
     return r.rows.map((row) => this.toRecord(row.data));
   }
 
-  async get(id: string): Promise<AnalysisRecord | null> {
+  private async getRaw(id: string): Promise<AnalysisRecord | null> {
     const r = await this.db.query(`SELECT data FROM ledger WHERE id = $1`, [id]);
     const row = r.rows[0];
     return row ? this.toRecord(row.data) : null;
   }
 
+  async list(): Promise<AnalysisRecord[]> {
+    const all = await this.allRecords();
+    return all.filter((r) => !r.deletedAt).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  }
+
+  async get(id: string): Promise<AnalysisRecord | null> {
+    const rec = await this.getRaw(id);
+    return rec && !rec.deletedAt ? rec : null;
+  }
+
   async save(record: AnalysisRecord): Promise<AnalysisRecord> {
     const payload = JSON.stringify(record);
-    // 先 UPDATE 再 INSERT：兼容不同 PG 驱动/测试替身，避免依赖 ON CONFLICT 语法
     const updated = await this.db.query(
       `UPDATE ledger SET data = $2, status = $3, updated_at = now() WHERE id = $1 RETURNING id`,
       [record.id, payload, record.status],
@@ -71,7 +86,6 @@ export class PostgresLedgerStore implements LedgerStore {
         [record.id, payload, record.status],
       );
     } catch {
-      // 并发插入撞主键：补一次更新
       await this.db.query(
         `UPDATE ledger SET data = $2, status = $3, updated_at = now() WHERE id = $1`,
         [record.id, payload, record.status],
@@ -98,23 +112,81 @@ export class PostgresLedgerStore implements LedgerStore {
   }
 
   async remove(id: string): Promise<boolean> {
+    const rec = await this.getRaw(id);
+    if (!rec || rec.deletedAt) return false;
+    await this.save({ ...rec, deletedAt: new Date().toISOString() });
+    return true;
+  }
+
+  async removeMany(ids: string[]): Promise<number> {
+    let n = 0;
+    for (const id of [...new Set(ids)]) {
+      const rec = await this.getRaw(id);
+      if (rec && !rec.deletedAt) {
+        await this.save({ ...rec, deletedAt: new Date().toISOString() });
+        n += 1;
+      }
+    }
+    return n;
+  }
+
+  async clear(): Promise<number> {
+    const all = await this.list();
+    let n = 0;
+    const now = new Date().toISOString();
+    for (const rec of all) {
+      await this.save({ ...rec, deletedAt: now });
+      n += 1;
+    }
+    return n;
+  }
+
+  async listDeleted(): Promise<AnalysisRecord[]> {
+    await this.purgeExpired();
+    const all = await this.allRecords();
+    return all
+      .filter((r) => r.deletedAt && withinTrashRetention(r.deletedAt))
+      .sort((a, b) => (a.deletedAt! < b.deletedAt! ? 1 : -1));
+  }
+
+  async restore(id: string): Promise<AnalysisRecord | null> {
+    const rec = await this.getRaw(id);
+    if (!rec || !rec.deletedAt) return null;
+    delete rec.deletedAt;
+    rec.updatedAt = new Date().toISOString();
+    await this.save(rec);
+    return rec;
+  }
+
+  async purge(id: string): Promise<boolean> {
+    const rec = await this.getRaw(id);
+    if (!rec || !rec.deletedAt) return false;
     const r = await this.db.query(`DELETE FROM ledger WHERE id = $1 RETURNING id`, [id]);
     return r.rows.length > 0;
   }
 
-  async removeMany(ids: string[]): Promise<number> {
-    const clean = [...new Set(ids.filter(Boolean))];
-    if (clean.length === 0) return 0;
-    const placeholders = clean.map((_, i) => `$${i + 1}`).join(", ");
+  async clearTrash(): Promise<number> {
+    const all = await this.allRecords();
+    const ids = all.filter((r) => r.deletedAt).map((r) => r.id);
+    if (ids.length === 0) return 0;
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(", ");
     const r = await this.db.query(
       `DELETE FROM ledger WHERE id IN (${placeholders}) RETURNING id`,
-      clean,
+      ids,
     );
     return r.rows.length;
   }
 
-  async clear(): Promise<number> {
-    const r = await this.db.query(`DELETE FROM ledger RETURNING id`);
+  async purgeExpired(): Promise<number> {
+    const all = await this.allRecords();
+    const expired = all.filter((r) => r.deletedAt && !withinTrashRetention(r.deletedAt));
+    if (expired.length === 0) return 0;
+    const ids = expired.map((r) => r.id);
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(", ");
+    const r = await this.db.query(
+      `DELETE FROM ledger WHERE id IN (${placeholders}) RETURNING id`,
+      ids,
+    );
     return r.rows.length;
   }
 }

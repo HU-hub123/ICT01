@@ -27,7 +27,7 @@ export async function DELETE(
   if (!ok) {
     return jsonResponse({ error: "未找到该认知账本条目" }, 404);
   }
-  return jsonResponse({ deleted: true });
+  return jsonResponse({ deleted: true, trashed: true, message: "已移到回收站，7 天内可恢复" });
 }
 
 /** POST /api/ledger/[id] —— 提交复盘（实际结果 → 推翻/确认假设） */

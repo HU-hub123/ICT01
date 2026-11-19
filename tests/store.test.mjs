@@ -76,13 +76,33 @@ test("Postgres 账本：初始化 / 保存 / 列表 / 复盘 / 覆盖", async ()
     null,
   );
 
-  // 批量删除与清空
+  // 软删除：进回收站 → 恢复 → 再删 → 清理过期
   await store.save(makeRecord("r2"));
   await store.save(makeRecord("r3"));
   assert.equal(await store.removeMany(["r2", "missing"]), 1);
-  assert.equal((await store.list()).length, 2); // rec-1 + r3
-  assert.equal(await store.clear(), 2);
+  assert.equal((await store.list()).length, 2); // rec-1 + r3（r2 已在回收站）
+  const trash = await store.listDeleted();
+  assert.equal(trash.length, 1);
+  assert.equal(trash[0].id, "r2");
+  assert.equal(await store.get("r2"), null); // 回收站条目按 id 查不到
+
+  const restored = await store.restore("r2");
+  assert.equal(restored.id, "r2");
+  assert.equal((await store.list()).length, 3);
+
+  // 全部删除 → 回收站 3 条 → 清空回收站
+  assert.equal(await store.clear(), 3);
   assert.equal((await store.list()).length, 0);
+  assert.equal((await store.listDeleted()).length, 3);
+  assert.equal(await store.clearTrash(), 3);
+  assert.equal((await store.listDeleted()).length, 0);
+
+  // 超过 7 天的回收站条目会被自动清理
+  const old = makeRecord("old");
+  old.deletedAt = new Date(Date.now() - 8 * 24 * 3600 * 1000).toISOString();
+  await store.save(old);
+  await store.purgeExpired();
+  assert.equal((await store.listDeleted()).length, 0);
 });
 
 test("内存限流：同一 key 计数递增", async () => {

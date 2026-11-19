@@ -18,11 +18,29 @@ export interface LedgerStore {
   get(id: string): Promise<AnalysisRecord | null>;
   save(record: AnalysisRecord): Promise<AnalysisRecord>;
   addReview(id: string, review: Omit<ReviewResult, "reviewedAt">): Promise<AnalysisRecord | null>;
+  /** 软删除（进回收站），返回是否成功 */
   remove(id: string): Promise<boolean>;
-  /** 批量删除，返回实际删除条数 */
+  /** 批量软删除，返回实际进入回收站的条数 */
   removeMany(ids: string[]): Promise<number>;
-  /** 清空全部，返回删除条数 */
+  /** 全部软删除，返回条数 */
   clear(): Promise<number>;
+  /** 回收站（7 天内） */
+  listDeleted(): Promise<AnalysisRecord[]>;
+  /** 从回收站恢复 */
+  restore(id: string): Promise<AnalysisRecord | null>;
+  /** 彻底删除单条 */
+  purge(id: string): Promise<boolean>;
+  /** 清空回收站（彻底删除全部回收站条目） */
+  clearTrash(): Promise<number>;
+  /** 清理超过 7 天的曾删除记录，返回清理条数 */
+  purgeExpired(): Promise<number>;
+}
+
+export const TRASH_RETENTION_MS = 7 * 24 * 3600 * 1000;
+
+export function withinTrashRetention(deletedAt?: string): boolean {
+  if (!deletedAt) return false;
+  return Date.now() - new Date(deletedAt).getTime() <= TRASH_RETENTION_MS;
 }
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -94,12 +112,15 @@ class FileLedgerStore implements LedgerStore {
 
   async list(): Promise<AnalysisRecord[]> {
     const records = await this.readAll();
-    return records.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+    return records
+      .filter((r) => !r.deletedAt)
+      .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   }
 
   async get(id: string): Promise<AnalysisRecord | null> {
     const records = await this.readAll();
-    return records.find((r) => r.id === id) ?? null;
+    const rec = records.find((r) => r.id === id);
+    return rec && !rec.deletedAt ? rec : null;
   }
 
   async save(record: AnalysisRecord): Promise<AnalysisRecord> {
@@ -118,7 +139,7 @@ class FileLedgerStore implements LedgerStore {
   ): Promise<AnalysisRecord | null> {
     return this.mutate(async (records) => {
       const idx = records.findIndex((r) => r.id === id);
-      if (idx < 0) return null;
+      if (idx < 0 || records[idx].deletedAt) return null;
       const updated: AnalysisRecord = {
         ...records[idx],
         status: "reviewed",
@@ -136,9 +157,9 @@ class FileLedgerStore implements LedgerStore {
 
   async remove(id: string): Promise<boolean> {
     return this.mutate(async (records) => {
-      const idx = records.findIndex((r) => r.id === id);
-      if (idx < 0) return false;
-      records.splice(idx, 1);
+      const rec = records.find((r) => r.id === id);
+      if (!rec || rec.deletedAt) return false;
+      rec.deletedAt = new Date().toISOString();
       await this.writeAll(records);
       return true;
     });
@@ -147,8 +168,67 @@ class FileLedgerStore implements LedgerStore {
   async removeMany(ids: string[]): Promise<number> {
     const set = new Set(ids);
     return this.mutate(async (records) => {
+      const now = new Date().toISOString();
+      let n = 0;
+      for (const r of records) {
+        if (set.has(r.id) && !r.deletedAt) {
+          r.deletedAt = now;
+          n += 1;
+        }
+      }
+      if (n > 0) await this.writeAll(records);
+      return n;
+    });
+  }
+
+  async clear(): Promise<number> {
+    return this.mutate(async (records) => {
+      const now = new Date().toISOString();
+      let n = 0;
+      for (const r of records) {
+        if (!r.deletedAt) {
+          r.deletedAt = now;
+          n += 1;
+        }
+      }
+      if (n > 0) await this.writeAll(records);
+      return n;
+    });
+  }
+
+  async listDeleted(): Promise<AnalysisRecord[]> {
+    await this.purgeExpired();
+    const records = await this.readAll();
+    return records
+      .filter((r) => r.deletedAt && withinTrashRetention(r.deletedAt))
+      .sort((a, b) => (a.deletedAt! < b.deletedAt! ? 1 : -1));
+  }
+
+  async restore(id: string): Promise<AnalysisRecord | null> {
+    return this.mutate(async (records) => {
+      const rec = records.find((r) => r.id === id);
+      if (!rec || !rec.deletedAt) return null;
+      delete rec.deletedAt;
+      rec.updatedAt = new Date().toISOString();
+      await this.writeAll(records);
+      return rec;
+    });
+  }
+
+  async purge(id: string): Promise<boolean> {
+    return this.mutate(async (records) => {
+      const idx = records.findIndex((r) => r.id === id && !!r.deletedAt);
+      if (idx < 0) return false;
+      records.splice(idx, 1);
+      await this.writeAll(records);
+      return true;
+    });
+  }
+
+  async clearTrash(): Promise<number> {
+    return this.mutate(async (records) => {
       const before = records.length;
-      const kept = records.filter((r) => !set.has(r.id));
+      const kept = records.filter((r) => !r.deletedAt);
       if (kept.length !== before) {
         records.length = 0;
         records.push(...kept);
@@ -158,12 +238,16 @@ class FileLedgerStore implements LedgerStore {
     });
   }
 
-  async clear(): Promise<number> {
+  async purgeExpired(): Promise<number> {
     return this.mutate(async (records) => {
-      const n = records.length;
-      records.length = 0;
-      await this.writeAll(records);
-      return n;
+      const before = records.length;
+      const kept = records.filter((r) => !r.deletedAt || withinTrashRetention(r.deletedAt));
+      if (kept.length !== before) {
+        records.length = 0;
+        records.push(...kept);
+        await this.writeAll(records);
+      }
+      return before - kept.length;
     });
   }
 }

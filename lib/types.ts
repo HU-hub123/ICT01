@@ -194,6 +194,8 @@ export interface AnalysisRecord {
   minimalAction: MinimalAction;
   steps: PipelineStep[];
   status: "open" | "reviewed";
+  /** 软删除时间：存在即表示已进回收站（7 天内可恢复） */
+  deletedAt?: string;
   /** 本轮系统回答摘要：追问时作为"上一轮自己的回答"喂回上下文（修复差评第 1 条 bug） */
   summary?: string;
   review?: ReviewResult;
