@@ -3,19 +3,38 @@ import { notFound } from "next/navigation";
 import { MODEL_MAP } from "@/lib/models-data";
 import { getPlain } from "@/lib/plain-explain";
 import { getStore } from "@/lib/store";
-import { LayerLegend } from "@/components/LayerBadge";
-import { TaggedList } from "@/components/TaggedList";
+import { LayerBadge } from "@/components/LayerBadge";
 import { ArgumentCard } from "@/components/ArgumentCard";
 import { TensionSection } from "@/components/TensionSection";
-import { ActionCard } from "@/components/ActionCard";
 import { TracePanel } from "@/components/TracePanel";
 import { ReviewForm } from "@/components/ReviewForm";
 import { DecisionGraph } from "@/components/DecisionGraph";
 import { ModelCompareTable } from "@/components/ModelCompareTable";
 import { ExportButtons } from "@/components/ExportButtons";
 import { SideOracle } from "@/components/SideOracle";
+import type { TaggedSentence } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+function SentenceList({ items, size }: { items: TaggedSentence[]; size: "lg" | "sm" }) {
+  return (
+    <ul className="space-y-2.5">
+      {items.map((s, i) => (
+        <li
+          key={i}
+          className={`flex gap-2 items-start ${
+            size === "lg" ? "text-[16px] leading-7 text-ink" : "text-sm leading-6 text-stone-700"
+          }`}
+        >
+          <span className="mt-1.5 shrink-0">
+            <LayerBadge layer={s.layer} />
+          </span>
+          <span>{s.text}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default async function LedgerDetail({
   params,
@@ -30,149 +49,167 @@ export default async function LedgerDetail({
   const children = all.filter((r) => r.followUpOf === record.id);
   const parent = record.followUpOf ? all.find((r) => r.id === record.followUpOf) : null;
 
+  const conclusions = record.conclusion || [];
+  const inference = conclusions.filter((s) => s.layer === "inference");
+  const head = (inference.length > 0 ? inference : conclusions).slice(0, 2);
+  const rest = conclusions.filter((s) => !head.includes(s));
+  const reviewed = record.status === "reviewed" && record.review;
+  const seenAt = new Date(record.createdAt).toLocaleString("zh-CN");
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 space-y-4">
-      <div className="space-y-1">
-        <p className="text-xs text-zinc-400">
-          {new Date(record.createdAt).toLocaleString("zh-CN")} ·{" "}
-          {record.status === "reviewed" ? "已复盘" : "待复盘"}
-          {record.followUpOf && (
+    <div className="mx-auto max-w-3xl px-4 py-8 space-y-5">
+      {/* 头部 */}
+      <div className="space-y-2">
+        <p className="text-xs text-stone-400">
+          {seenAt} · {reviewed ? "已复盘" : "待复盘"}
+          {parent && (
             <>
               {" · "}
-              <Link href={`/ledger/${record.followUpOf}`} className="underline">
-                查看上一轮
+              <Link href={`/ledger/${parent.id}`} className="text-brand hover:underline">
+                上一轮追问
+              </Link>
+            </>
+          )}
+          {children.length > 0 && (
+            <>
+              {" · "}
+              <Link href={`/ledger/${children[children.length - 1].id}`} className="text-brand hover:underline">
+                最新追问
               </Link>
             </>
           )}
         </p>
-        <h1 className="text-xl font-bold text-zinc-900">{record.question}</h1>
-        {record.extraFacts && (
-          <p className="text-sm text-zinc-600">补充信息：{record.extraFacts}</p>
+        <h1 className="serif text-2xl font-bold leading-snug text-ink">{record.question}</h1>
+        {record.extraFacts && <p className="text-sm text-stone-500">补充：{record.extraFacts}</p>}
+        <ExportButtons record={record} />
+      </div>
+
+      {/* 重点 1：判断点 */}
+      <section className="panel p-5 space-y-1">
+        <p className="text-xs text-stone-400">真正的判断点</p>
+        <p className="text-[17px] leading-8 text-ink">{record.factsRecap.coreJudgment}</p>
+      </section>
+
+      {/* 重点 2：结论 */}
+      <section className="panel p-5 space-y-3">
+        <p className="text-xs text-stone-400">结论要点（每句都标了成色）</p>
+        <SentenceList items={head} size="lg" />
+        {rest.length > 0 && (
+          <details>
+            <summary className="cursor-pointer text-xs text-brand select-none">
+              展开其余 {rest.length} 句结论
+            </summary>
+            <div className="mt-2">
+              <SentenceList items={rest} size="sm" />
+            </div>
+          </details>
         )}
-        <div className="pt-2 space-y-1">
-          {parent && (
-            <p className="text-xs text-zinc-500">
-              上一轮追问：
-              <Link href={`/ledger/${parent.id}`} className="text-sky-600 underline">
-                {parent.question.slice(0, 40)}…
-              </Link>
-            </p>
-          )}
-          {children.length > 0 && (
-            <p className="text-xs text-zinc-500">
-              后续追问：
-              {children.map((c, i) => (
-                <span key={c.id}>
-                  {i > 0 && "；"}
-                  <Link href={`/ledger/${c.id}`} className="text-sky-600 underline">
-                    {c.question.slice(0, 24)}…
-                  </Link>
-                </span>
-              ))}
-            </p>
-          )}
-          <ExportButtons record={record} />
-        </div>
-      </div>
+      </section>
 
-      <div className="panel p-4 space-y-2">
-        <h2 className="serif text-[15px] font-semibold text-ink">
-          ① 先把「知道的」和「不知道的」分开
-        </h2>
-        <p className="text-sm text-zinc-800">
-          <b>核心判断点：</b>
-          {record.factsRecap.coreJudgment}
+      {/* 重点 3：行动 */}
+      <section className="panel p-5 space-y-2.5">
+        <p className="text-xs text-stone-400">下一步</p>
+        <p className="text-[16px] leading-7 text-ink">{record.minimalAction.action}</p>
+        <p className="text-sm leading-6 text-stone-600">
+          <b className="text-rose-700">停止条件：</b>
+          {record.minimalAction.stopCondition}
         </p>
-        <p className="text-xs text-emerald-700">
-          已确认事实：{record.factsRecap.confirmedFacts.join("；") || "（无，全部推演建立在标注过的假设之上）"}
+        <p className="text-sm leading-6 text-stone-600">
+          <b className="text-sky-700">看多久、看什么：</b>
+          {record.minimalAction.observationWindow}
         </p>
-        <p className="text-xs text-rose-700">
-          缺失信息：{record.factsRecap.missingInfo.join("；") || "（未识别到）"}
-        </p>
-      </div>
+      </section>
 
-      <div className="panel p-4 space-y-2">
-        <h2 className="serif text-[15px] font-semibold text-ink">② 挑几个角度来看</h2>
-        <div className="grid sm:grid-cols-2 gap-2">
-          {record.selections.map((sel) => {
-            const m = MODEL_MAP[sel.modelId];
-            if (!m) return null;
-            const inTension = m.tensionWith.some((tid) =>
-              record.selections.some((s2) => s2.modelId === tid),
-            );
-            return (
-              <div key={sel.modelId} className="border border-line rounded-xl p-3 bg-white/60">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-sm text-stone-900">{m.name}</span>
-                  {inTension && (
-                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-100/80 text-amber-800">
-                      ⚔️ 和另一个角度有张力
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-stone-600 mt-1 leading-5">{getPlain(m.id)}</p>
-                <p className="text-[11px] text-stone-400 mt-1 leading-5">{sel.reason}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <h2 className="serif text-[15px] font-semibold text-ink">③ 让每个角度独立说话</h2>
-        {record.arguments.map((a) => (
-          <ArgumentCard key={a.modelId} arg={a} />
-        ))}
-      </div>
-
-      <TensionSection
-        conflicts={record.conflicts}
-        agreementNote={record.agreementNote}
-        checkpoints={record.checkpoints}
-      />
-
-      <div className="panel p-4 space-y-2">
-        <h2 className="serif text-[15px] font-semibold text-ink">推演关系图</h2>
-        <DecisionGraph record={record} />
-      </div>
-
-      <div className="panel p-4 space-y-3">
-        <h2 className="serif text-[15px] font-semibold text-ink">⑤ 收束成一句能行动的判断</h2>
-        <LayerLegend />
-        <TaggedList items={record.conclusion} />
-      </div>
-
-      <ModelCompareTable record={record} />
-
-      <ActionCard minimalAction={record.minimalAction} />
-
-      <TracePanel steps={record.steps} />
-
-      {record.review ? (
-        <div className="panel p-4 space-y-3 border-emerald-200">
-          <h2 className="font-semibold text-emerald-700">
-            ✅ 复盘结果（{new Date(record.review.reviewedAt).toLocaleString("zh-CN")}）
-          </h2>
-          <p className="text-sm text-zinc-800">
-            <b>实际发生：</b>
-            {record.review.actualOutcome}
-          </p>
-          <p className="text-xs text-rose-700">
-            被推翻的假设：{record.review.overturnedAssumptions.join("；") || "（未填写）"}
-          </p>
+      {/* 重点 4：复盘 */}
+      {reviewed ? (
+        <section className="panel p-5 space-y-2 border-emerald-200/70">
           <p className="text-xs text-emerald-700">
-            被确认的假设：{record.review.confirmedAssumptions.join("；") || "（未填写）"}
+            ✅ 复盘（{new Date(record.review!.reviewedAt).toLocaleDateString("zh-CN")}）
           </p>
-          {record.review.lesson && (
-            <p className="text-sm text-zinc-700 bg-zinc-50 border border-zinc-200 rounded-lg p-3">
+          <p className="text-[16px] leading-7 text-ink">{record.review!.actualOutcome}</p>
+          <p className="text-sm text-rose-700 leading-6">
+            <b>被推翻的假设：</b>
+            {record.review!.overturnedAssumptions.join("；") || "（未填写）"}
+          </p>
+          <p className="text-sm text-emerald-700 leading-6">
+            <b>被确认的假设：</b>
+            {record.review!.confirmedAssumptions.join("；") || "（未填写）"}
+          </p>
+          {record.review!.lesson && (
+            <p className="text-sm leading-6 text-stone-700 bg-stone-50 border border-line rounded-xl p-3">
               <b>教训：</b>
-              {record.review.lesson}
+              {record.review!.lesson}
             </p>
           )}
-        </div>
+        </section>
       ) : (
         <ReviewForm recordId={record.id} />
       )}
+
+      {/* 折叠：完整推演 */}
+      <details className="panel p-5">
+        <summary className="cursor-pointer text-sm font-medium text-ink select-none">
+          完整推演（事实与缺口 · 各角度论证 · 冲突 · 关系图 · 对照表 · 溯源回放）
+        </summary>
+        <div className="mt-4 space-y-4">
+          <div className="space-y-2">
+            <h2 className="serif text-[15px] font-semibold text-ink">事实与缺口</h2>
+            <p className="text-xs text-emerald-700 leading-5">
+              已确认事实：
+              {record.factsRecap.confirmedFacts.join("；") || "（无，全部推演建立在标注过的假设上）"}
+            </p>
+            <p className="text-xs text-rose-700 leading-5">
+              缺失信息：
+              {record.factsRecap.missingInfo.join("；") || "（未识别到）"}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="serif text-[15px] font-semibold text-ink">这几个角度</h2>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {record.selections.map((sel) => {
+                const m = MODEL_MAP[sel.modelId];
+                if (!m) return null;
+                const inTension = m.tensionWith.some((tid) =>
+                  record.selections.some((s2) => s2.modelId === tid),
+                );
+                return (
+                  <div key={sel.modelId} className="border border-line rounded-xl p-3 bg-white/60">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-sm text-stone-900">{m.name}</span>
+                      {inTension && (
+                        <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-100/80 text-amber-800">
+                          ⚔️ 张力
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-stone-600 mt-1 leading-5">{getPlain(m.id)}</p>
+                    <p className="text-[11px] text-stone-400 mt-1 leading-5">{sel.reason}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {record.arguments.map((a) => (
+            <ArgumentCard key={a.modelId} arg={a} />
+          ))}
+
+          <TensionSection
+            conflicts={record.conflicts}
+            agreementNote={record.agreementNote}
+            checkpoints={record.checkpoints}
+          />
+
+          <div className="space-y-2">
+            <h2 className="serif text-[15px] font-semibold text-ink">推演关系图</h2>
+            <DecisionGraph record={record} />
+          </div>
+
+          <ModelCompareTable record={record} />
+          <TracePanel steps={record.steps} />
+        </div>
+      </details>
 
       <SideOracle question={record.question} />
     </div>

@@ -22,12 +22,11 @@ export default async function StatsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
+    <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">复盘统计 · 长期认知轨迹</h1>
+        <h1 className="serif text-2xl font-bold text-ink">复盘统计</h1>
         <p className="text-sm text-stone-500 mt-1">
-          半年后回来看这里：当时为什么相信、哪个假设被现实推翻、哪种偏差反复出现。
-          数据只来自你自己提交的复盘，不推断、不虚构。
+          只看你自己提交的复盘，不推断、不虚构。用得越久，这里的轨迹越清楚。
         </p>
       </div>
 
@@ -35,24 +34,22 @@ export default async function StatsPage() {
         {cards.map((c) => (
           <div key={c.label} className="panel p-4">
             <p className="text-xs text-stone-400">{c.label}</p>
-            <p className="text-2xl font-bold text-ink mt-1">{c.value}</p>
-            {c.note && <p className="text-xs text-stone-400 mt-1">{c.note}</p>}
+            <p className="text-3xl font-bold text-ink mt-1">{c.value}</p>
+            {c.note && <p className="text-[11px] text-stone-400 mt-1 leading-4">{c.note}</p>}
           </div>
         ))}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="panel p-4 space-y-2">
-          <h2 className="font-semibold text-ink text-sm">已复盘判断中最常出现的模型</h2>
+        <div className="panel p-5 space-y-2">
+          <h2 className="text-sm font-semibold text-ink">最常借助的角度</h2>
           {s.topModels.length === 0 ? (
-            <p className="text-xs text-stone-400">
-              暂无数据。完成一次复盘后，这里会显示你最常借助的模型。
-            </p>
+            <p className="text-sm text-stone-400">暂无数据，完成一次复盘后出现。</p>
           ) : (
-            <ul className="space-y-1.5">
+            <ul className="space-y-2">
               {s.topModels.map((m) => (
-                <li key={m.modelId} className="flex justify-between text-sm">
-                  <Link href="/models" className="text-stone-700 hover:underline">
+                <li key={m.modelId} className="flex justify-between text-[15px]">
+                  <Link href="/models" className="text-stone-700 hover:text-brand">
                     {m.name}
                   </Link>
                   <span className="text-stone-400 text-xs">×{m.count}</span>
@@ -62,18 +59,14 @@ export default async function StatsPage() {
           )}
         </div>
 
-        <div className="panel p-4 space-y-2">
-          <h2 className="font-semibold text-ink text-sm">
-            ⚠️ 常犯偏差信号（已复盘判断中反复出现的「检查偏差」类模型）
-          </h2>
+        <div className="panel p-5 space-y-2">
+          <h2 className="text-sm font-semibold text-ink">反复出现的偏差</h2>
           {s.topBiasModels.length === 0 ? (
-            <p className="text-xs text-stone-400">
-              暂无数据。如果同一种偏差反复出现在你的判断里，它会在这里被点出来。
-            </p>
+            <p className="text-sm text-stone-400">暂无数据。同一种偏差反复出现时，会在这里被点出来。</p>
           ) : (
-            <ul className="space-y-1.5">
+            <ul className="space-y-2">
               {s.topBiasModels.map((m) => (
-                <li key={m.modelId} className="flex justify-between text-sm">
+                <li key={m.modelId} className="flex justify-between text-[15px]">
                   <span className="text-amber-800">
                     {m.name}
                     {MODEL_MAP[m.modelId]?.tensionWith.length
@@ -90,54 +83,45 @@ export default async function StatsPage() {
         </div>
       </div>
 
-      <div className="panel p-4 space-y-3">
-        <h2 className="font-semibold text-ink text-sm">复盘时间线（实际结果）</h2>
+      <div className="panel p-5 space-y-3">
+        <h2 className="text-sm font-semibold text-ink">复盘时间线</h2>
         {s.timeline.length === 0 ? (
           <div className="text-center py-6 space-y-2">
-            <p className="text-xs text-stone-400">
-              还没有复盘记录。判断的价值要等到现实结果回填之后才真正落地。
-            </p>
-            <Link
-              href="/ledger"
-              className="inline-block text-sm text-brand underline"
-            >
-              去账本找到「待复盘」条目，回填实际结果 →
+            <p className="text-sm text-stone-400">还没有复盘记录。判断的价值要等现实结果回填之后才落地。</p>
+            <Link href="/ledger" className="inline-block text-sm text-brand underline">
+              去账本找到「待复盘」条目 →
             </Link>
           </div>
         ) : (
-          <ol className="space-y-3">
+          <ol className="space-y-4">
             {s.timeline.map((t) => (
-              <li key={t.id} className="border-l-2 border-emerald-200 pl-4 text-sm space-y-1">
-                <p className="text-xs text-stone-400">
-                  {new Date(t.reviewedAt).toLocaleString("zh-CN")}
-                </p>
-                <Link href={`/ledger/${t.id}`} className="font-medium text-stone-800 hover:underline">
+              <li key={t.id} className="border-l-2 border-emerald-200 pl-4 space-y-1">
+                <p className="text-xs text-stone-400">{new Date(t.reviewedAt).toLocaleDateString("zh-CN")}</p>
+                <Link href={`/ledger/${t.id}`} className="text-[15px] font-medium text-ink hover:text-brand">
                   {t.question}
                 </Link>
-                <p className="text-stone-600 text-xs leading-5">{t.actualOutcome}</p>
+                <p className="text-sm text-stone-600 leading-6">{t.actualOutcome}</p>
               </li>
             ))}
           </ol>
         )}
       </div>
 
-      <div className="panel p-4 space-y-3">
-        <h2 className="font-semibold text-ink text-sm">写给自己的教训</h2>
+      <div className="panel p-5 space-y-3">
+        <h2 className="text-sm font-semibold text-ink">写给自己的教训</h2>
         {s.lessons.length === 0 ? (
-          <p className="text-xs text-stone-400">
-            暂无。复盘时写下「这次学到的教训」，它会累积在这里，成为你自己的判断手册。
-          </p>
+          <p className="text-sm text-stone-400">暂无。复盘时写下「这次学到的教训」，会累积在这里。</p>
         ) : (
           <ul className="space-y-3">
             {s.lessons.map((l) => (
-              <li key={l.id} className="bg-stone-50 border border-line rounded-lg p-3 text-sm space-y-1">
+              <li key={l.id} className="bg-stone-50 border border-line rounded-xl p-3 space-y-1">
                 <p className="text-xs text-stone-400">
-                  {new Date(l.reviewedAt).toLocaleString("zh-CN")} ·{" "}
-                  <Link href={`/ledger/${l.id}`} className="hover:underline">
-                    {l.question.slice(0, 40)}…
+                  {new Date(l.reviewedAt).toLocaleDateString("zh-CN")} ·{" "}
+                  <Link href={`/ledger/${l.id}`} className="hover:text-brand">
+                    {l.question.slice(0, 30)}…
                   </Link>
                 </p>
-                <p className="text-stone-700 leading-6">{l.lesson}</p>
+                <p className="text-sm text-stone-700 leading-6">{l.lesson}</p>
               </li>
             ))}
           </ul>

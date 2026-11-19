@@ -290,7 +290,7 @@ export function AskWorkbench() {
               {record.factsRecap.confirmedFacts.length ? (
                 <ul className="space-y-1">
                   {record.factsRecap.confirmedFacts.map((f, i) => (
-                    <li key={i} className="flex gap-2 items-start text-sm text-stone-800 leading-6">
+                    <li key={i} className="flex gap-2 items-start text-[15px] text-stone-800 leading-6">
                       <span className="mt-0.5 shrink-0">
                         <LayerBadge layer="fact" />
                       </span>
@@ -309,7 +309,7 @@ export function AskWorkbench() {
               {missing.length ? (
                 <ul className="space-y-1">
                   {shownMissing.map((f, i) => (
-                    <li key={i} className="flex gap-2 items-start text-sm text-stone-800 leading-6">
+                    <li key={i} className="flex gap-2 items-start text-[15px] text-stone-800 leading-6">
                       <span className="mt-0.5 shrink-0">
                         <LayerBadge layer="missing" />
                       </span>

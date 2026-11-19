@@ -12,10 +12,10 @@ export function TaggedList({
     return <p className="text-sm text-stone-400">{emptyText}</p>;
   }
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-2.5">
       {items.map((s, i) => (
-        <li key={i} className="flex gap-2 items-start text-sm leading-6 text-stone-800">
-          <span className="mt-0.5 shrink-0">
+        <li key={i} className="flex gap-2 items-start text-[15px] leading-7 text-ink">
+          <span className="mt-1.5 shrink-0">
             <LayerBadge layer={s.layer} />
           </span>
           <span>{s.text}</span>

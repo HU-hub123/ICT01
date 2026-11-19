@@ -9,9 +9,7 @@ export const metadata: Metadata = {
 };
 
 const nav = [
-  { href: "/", label: "首页" },
-  { href: "/ask", label: "工作台" },
-  { href: "/demo", label: "演示" },
+  { href: "/", label: "工作台" },
   { href: "/models", label: "模型库" },
   { href: "/ledger", label: "认知账本" },
   { href: "/ledger/stats", label: "复盘统计" },
@@ -29,9 +27,6 @@ export default function RootLayout({
           <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
             <Link href="/" className="font-semibold text-ink whitespace-nowrap">
               <span className="serif text-[15px]">认知脚手架</span>
-              <span className="hidden sm:inline text-stone-400 font-normal text-sm">
-                {" "}· 可溯源思考工作台
-              </span>
             </Link>
             <nav className="flex items-center gap-0.5 text-sm overflow-x-auto whitespace-nowrap ml-2">
               {nav.map((n) => (
@@ -47,8 +42,20 @@ export default function RootLayout({
           </div>
         </header>
         <main className="flex-1">{children}</main>
-        <footer className="border-t border-line py-6 text-center text-xs text-stone-400">
-          认知脚手架 · 面向第十一届华为 ICT 大赛创新赛赛题一 · 我们保存结论，也保存得到结论的过程
+        <footer className="border-t border-line py-5 text-xs text-stone-400">
+          <div className="mx-auto max-w-6xl px-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <span>认知脚手架 · 保存结论，也保存得到结论的过程</span>
+            <span className="text-stone-300">|</span>
+            <Link href="/about" className="hover:text-stone-600">
+              关于
+            </Link>
+            <Link href="/demo" className="hover:text-stone-600">
+              演示
+            </Link>
+            <Link href="/models" className="hover:text-stone-600">
+              模型库
+            </Link>
+          </div>
         </footer>
       </body>
     </html>
