@@ -3,7 +3,16 @@ import { DISCIPLINE_LABELS, getDiscipline, getPlain } from "@/lib/plain-explain"
 import { ROLE_LABELS, ROLE_NOTES, type ModelDef } from "@/lib/types";
 
 /** 模型卡片：先给一句大白话，详解收进「展开」里 */
-export function ModelCard({ model, usedCount }: { model: ModelDef; usedCount?: number }) {
+export function ModelCard({
+  model,
+  usedCount,
+  onDelete,
+}: {
+  model: ModelDef;
+  usedCount?: number;
+  onDelete?: () => void;
+}) {
+  const plain = model.plain || getPlain(model.id) || model.definition;
   return (
     <div className="panel p-4 space-y-2">
       <div className="flex items-center gap-2 flex-wrap">
@@ -14,16 +23,27 @@ export function ModelCard({ model, usedCount }: { model: ModelDef; usedCount?: n
         >
           {ROLE_LABELS[model.role]}
         </span>
-        <span className="text-[11px] text-stone-400">{DISCIPLINE_LABELS[getDiscipline(model.id)]}</span>
+        {model.custom ? (
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-brand-soft text-brand">自定义</span>
+        ) : (
+          <span className="text-[11px] text-stone-400">{DISCIPLINE_LABELS[getDiscipline(model.id)]}</span>
+        )}
         {usedCount !== undefined && usedCount > 0 && (
-          <span className="text-[11px] px-2 py-0.5 rounded-full bg-brand-soft text-brand">
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-700">
             你的推演用过 ×{usedCount}
           </span>
         )}
+        {model.custom && onDelete && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="ml-auto text-[11px] px-2 py-0.5 rounded-full border border-line text-stone-400 hover:text-rose-600 hover:border-rose-200"
+          >
+            删除
+          </button>
+        )}
       </div>
-      <p className="text-sm text-stone-700 leading-6">
-        {getPlain(model.id) || model.definition}
-      </p>
+      <p className="text-sm text-stone-700 leading-6">{plain}</p>
       <details className="text-xs text-stone-500">
         <summary className="cursor-pointer select-none text-stone-400 hover:text-stone-600">
           展开详解（定义 / 动作 / 适用 / 失效 / 谱系 / 信源）

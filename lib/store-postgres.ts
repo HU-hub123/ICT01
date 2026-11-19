@@ -96,4 +96,9 @@ export class PostgresLedgerStore implements LedgerStore {
     await this.save(updated);
     return updated;
   }
+
+  async remove(id: string): Promise<boolean> {
+    const r = await this.db.query(`DELETE FROM ledger WHERE id = $1 RETURNING id`, [id]);
+    return r.rows.length > 0;
+  }
 }

@@ -6,7 +6,11 @@ export function TensionSection({
   conflicts,
   agreementNote,
   checkpoints,
-}: Pick<AnalysisRecord, "conflicts" | "agreementNote" | "checkpoints">) {
+  modelNames,
+}: Pick<AnalysisRecord, "conflicts" | "agreementNote" | "checkpoints"> & {
+  modelNames?: Record<string, string>;
+}) {
+  const nameOf = (id: string) => modelNames?.[id] ?? MODEL_MAP[id]?.name ?? id;
   return (
     <div className="panel p-5 space-y-4">
       <h2 className="serif text-[15px] font-semibold text-ink">④ 让角度之间互相质询</h2>
@@ -27,7 +31,7 @@ export function TensionSection({
               className="border border-amber-200/70 bg-amber-50/40 rounded-xl p-3 text-sm space-y-1"
             >
               <p className="font-medium text-amber-900">
-                冲突 {i + 1}：{c.between.map((id) => MODEL_MAP[id]?.name ?? id).join(" × ")}
+                冲突 {i + 1}：{c.between.map((id) => nameOf(id)).join(" × ")}
               </p>
               <p className="text-stone-800 leading-6">{c.statement}</p>
               <p className="text-xs text-stone-600 leading-5">

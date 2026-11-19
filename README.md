@@ -23,6 +23,7 @@
 | v0.6.1-品牌配色 | 全站换用 DeepSeek 品牌蓝（主色 #4D6BFE / 冷白底 / 深蓝字幕条）；主界面与演示页视觉统一（同一套卡片、字号、按钮、色板） | ✅ 已实现 |
 | v0.7.0-质量与云存储 | 评测集（6 类 24 题）+ 确定性断言 + 可选 LLM 评审 + CI 回归；真实 Postgres（RDS）账本适配器 + Redis 限流（内存降级）；docker-compose 带 postgres/redis；存储与限流单测 | ✅ 已实现 |
 | v0.8.0-交互聚焦 | 首页直接变为工作台（去掉大字营销与比赛字样）；演示/产品介绍移出主界面（页脚「演示」「关于」+ 独立 /about）；复盘页重做为「大字重点 + 折叠细节」（判断点 / 结论要点 / 下一步 / 复盘结果）；结论以推断句开场 | ✅ 已实现 |
+| v0.9.0-自定义与清理 | 账本/最近判断支持删除（含 Postgres 适配器 `remove`）；模型库支持添加/删除自定义模型（名称/大白话/认知操作/关键词/适用/失效/冲突），自定义模型参与检索与推演并随记录留快照 | ✅ 已实现 |
 
 ## 目标赛事
 
@@ -75,6 +76,8 @@ lib/
   deepseek.ts        DeepSeek Provider（真实调用，超时/重试/明确报错）
   store.ts           存储适配器（本地 JSON ↔ 华为云 RDS/Postgres，环境变量切换）
   store-postgres.ts  Postgres 账本实现（ledger 表 + jsonb，自动建表）
+  custom-models.ts   用户自定义模型存储（data/custom-models.json）
+  models-all.ts      内置 42 + 自定义模型的合并与快照工具
   rate-limit.ts      Redis 限流（INCR/EXPIRE）+ 内存降级
   stats.ts           复盘统计（长期认知轨迹、常犯偏差信号）
   sse-client.ts      共享 SSE 客户端（/api/analyze 流式解析、账本保存）

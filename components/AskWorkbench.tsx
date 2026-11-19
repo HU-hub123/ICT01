@@ -8,7 +8,6 @@ import { getPlain } from "@/lib/plain-explain";
 import { LayerLegend, LayerBadge } from "./LayerBadge";
 import { TaggedList } from "./TaggedList";
 import { ArgumentCard } from "./ArgumentCard";
-import { TensionSection } from "./TensionSection";
 import { ActionCard } from "./ActionCard";
 import { TracePanel } from "./TracePanel";
 import { DecisionGraph } from "./DecisionGraph";
@@ -339,7 +338,7 @@ export function AskWorkbench() {
             </p>
             <div className="grid sm:grid-cols-2 gap-2">
               {record.selections.map((sel) => {
-                const m = MODEL_MAP[sel.modelId];
+                const m = sel.model ?? MODEL_MAP[sel.modelId];
                 if (!m) return null;
                 const inTension = m.tensionWith.some((tid) =>
                   record.selections.some((s2) => s2.modelId === tid),
@@ -359,7 +358,7 @@ export function AskWorkbench() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-stone-600 mt-1 leading-5">{getPlain(m.id)}</p>
+                    <p className="text-xs text-stone-600 mt-1 leading-5">{sel.model?.plain || getPlain(m.id)}</p>
                     {detail === "full" && (
                       <p className="text-[11px] text-stone-400 mt-1 leading-5">
                         为什么选它：{sel.reason}
@@ -388,8 +387,7 @@ export function AskWorkbench() {
           <section className="panel p-5 space-y-3">
             <h2 className="serif text-[15px] font-semibold text-ink">
               ④ 让角度之间互相质询
-            </h2>
-            <p className="text-xs text-stone-400">
+            </h2>            <p className="text-xs text-stone-400">
               交叉推演：冲突点不是要分出输赢，而是看各自在什么条件下成立；再问「什么证据会改变判断」。
             </p>
             {conflicts.length === 0 ? (

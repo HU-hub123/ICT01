@@ -95,10 +95,6 @@ export function DemoPlayer() {
     }, 120);
   }, []);
 
-  const scrollToTop = useCallback(() => {
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 120);
-  }, []);
-
   const run = useCallback(async () => {
     setStage("running");
     setStatusText("事实收口");
@@ -159,8 +155,6 @@ export function DemoPlayer() {
 
   const caption =
     stage === "running" ? `推演进行中 · ${statusText || "事实收口"}` : CAPTIONS[stage];
-
-  const models = record?.selections.map((s) => MODEL_MAP[s.modelId]).filter(Boolean) ?? [];
 
   return (
     <div className="pb-28" data-demo-done={stage === "done" ? "true" : "false"}>
@@ -292,7 +286,7 @@ export function DemoPlayer() {
                   </h2>
                   <div className="grid sm:grid-cols-2 gap-2">
                     {record.selections.map((sel) => {
-                      const m = MODEL_MAP[sel.modelId];
+                      const m = sel.model ?? MODEL_MAP[sel.modelId];
                       if (!m) return null;
                       const inTension = m.tensionWith.some((tid) =>
                         record.selections.some((s2) => s2.modelId === tid),
@@ -314,7 +308,7 @@ export function DemoPlayer() {
                             )}
                           </div>
                           <p className="text-xs text-stone-600 mt-1 leading-5">
-                            {MODEL_MAP[sel.modelId] ? getPlain(sel.modelId) : ""}
+                            {sel.model?.plain || getPlain(m.id)}
                           </p>
                           <p className="text-[11px] text-stone-400 mt-1 leading-5">
                             选择理由：{sel.reason}
@@ -343,6 +337,12 @@ export function DemoPlayer() {
                     conflicts={record.conflicts}
                     agreementNote={record.agreementNote}
                     checkpoints={record.checkpoints}
+                    modelNames={Object.fromEntries(
+                      record.selections.map((s) => [
+                        s.modelId,
+                        s.model?.name ?? MODEL_MAP[s.modelId]?.name ?? s.modelId,
+                      ]),
+                    )}
                   />
                 </div>
               )}

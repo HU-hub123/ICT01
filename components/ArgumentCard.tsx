@@ -5,7 +5,7 @@ import { TaggedList } from "./TaggedList";
 
 /** 单个模型的独立推演：先给大白话，再给结论与边界 */
 export function ArgumentCard({ arg }: { arg: ModelArgument }) {
-  const m = MODEL_MAP[arg.modelId];
+  const m = arg.model ?? MODEL_MAP[arg.modelId];
   if (!m) return null;
   return (
     <div className="panel p-4 space-y-3">
@@ -20,7 +20,7 @@ export function ArgumentCard({ arg }: { arg: ModelArgument }) {
         <span className="text-[11px] text-stone-400">{m.nameEn}</span>
       </div>
       <p className="text-xs text-stone-600 bg-stone-50/70 border border-line/70 rounded-lg p-2 leading-5">
-        一句话：{getPlain(m.id)}
+        一句话：{arg.model?.plain || getPlain(m.id)}
       </p>
       <p className="text-xs text-amber-900 bg-amber-50/60 border border-amber-100/60 rounded-lg p-2 leading-5">
         🧭 它要求你做的动作：{m.scaffoldAction}

@@ -11,6 +11,7 @@ import { ReviewForm } from "@/components/ReviewForm";
 import { DecisionGraph } from "@/components/DecisionGraph";
 import { ModelCompareTable } from "@/components/ModelCompareTable";
 import { ExportButtons } from "@/components/ExportButtons";
+import { DeleteRecordButton } from "@/components/DeleteRecordButton";
 import { SideOracle } from "@/components/SideOracle";
 import type { TaggedSentence } from "@/lib/types";
 
@@ -81,7 +82,10 @@ export default async function LedgerDetail({
         </p>
         <h1 className="serif text-2xl font-bold leading-snug text-ink">{record.question}</h1>
         {record.extraFacts && <p className="text-sm text-stone-500">补充：{record.extraFacts}</p>}
-        <ExportButtons record={record} />
+        <div className="flex items-center gap-2 flex-wrap">
+          <ExportButtons record={record} />
+          <DeleteRecordButton id={record.id} label="删除这笔" />
+        </div>
       </div>
 
       {/* 重点 1：判断点 */}
@@ -168,7 +172,7 @@ export default async function LedgerDetail({
             <h2 className="serif text-[15px] font-semibold text-ink">这几个角度</h2>
             <div className="grid sm:grid-cols-2 gap-2">
               {record.selections.map((sel) => {
-                const m = MODEL_MAP[sel.modelId];
+                const m = sel.model ?? MODEL_MAP[sel.modelId];
                 if (!m) return null;
                 const inTension = m.tensionWith.some((tid) =>
                   record.selections.some((s2) => s2.modelId === tid),
@@ -183,7 +187,7 @@ export default async function LedgerDetail({
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-stone-600 mt-1 leading-5">{getPlain(m.id)}</p>
+                    <p className="text-xs text-stone-600 mt-1 leading-5">{sel.model?.plain || getPlain(m.id)}</p>
                     <p className="text-[11px] text-stone-400 mt-1 leading-5">{sel.reason}</p>
                   </div>
                 );
@@ -199,6 +203,12 @@ export default async function LedgerDetail({
             conflicts={record.conflicts}
             agreementNote={record.agreementNote}
             checkpoints={record.checkpoints}
+            modelNames={Object.fromEntries(
+              record.selections.map((s) => [
+                s.modelId,
+                s.model?.name ?? MODEL_MAP[s.modelId]?.name ?? s.modelId,
+              ]),
+            )}
           />
 
           <div className="space-y-2">

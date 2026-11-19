@@ -17,6 +17,19 @@ export async function GET(
   return jsonResponse({ record });
 }
 
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const store = await getStore();
+  const ok = await store.remove(id);
+  if (!ok) {
+    return jsonResponse({ error: "未找到该认知账本条目" }, 404);
+  }
+  return jsonResponse({ deleted: true });
+}
+
 /** POST /api/ledger/[id] —— 提交复盘（实际结果 → 推翻/确认假设） */
 export async function POST(
   req: Request,

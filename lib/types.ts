@@ -85,6 +85,22 @@ export interface ModelDef {
   /** 谱系关系：与哪些概念同源/衍生/相关 */
   lineage: string;
   sources: SourceRef[];
+  /** 用户自定义条目 */
+  custom?: boolean;
+  /** 大白话解释（内置模型见 plain-explain.ts） */
+  plain?: string;
+}
+
+/** 嵌入记录里的模型快照，保证自定义/历史模型在结果页也能正常显示 */
+export interface ModelLite {
+  id: string;
+  name: string;
+  nameEn: string;
+  role: OpRole;
+  scaffoldAction: string;
+  definition: string;
+  tensionWith: string[];
+  plain?: string;
 }
 
 export interface TaggedSentence {
@@ -104,6 +120,8 @@ export interface ModelSelection {
   modelId: string;
   reason: string;
   source: "llm" | "library_tension";
+  /** 选择时的模型快照（自定义模型也能显示） */
+  model?: ModelLite;
 }
 
 /** 第三步：各模型独立推演 */
@@ -112,6 +130,8 @@ export interface ModelArgument {
   conclusion: TaggedSentence[];
   appliesWhen: string;
   failsWhen: string;
+  /** 推演时的模型快照 */
+  model?: ModelLite;
 }
 
 /** 第四步：交叉推演 */

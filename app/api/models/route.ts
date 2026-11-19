@@ -1,9 +1,14 @@
 import { jsonResponse } from "@/lib/http";
-import { MODELS } from "@/lib/models-data";
+import { getAllModels } from "@/lib/models-all";
 
 export const runtime = "nodejs";
 
-/** GET /api/models —— 可溯源模型库（42 个精选模型） */
+/** GET /api/models —— 可溯源模型库（内置 + 用户自定义） */
 export async function GET() {
-  return jsonResponse({ models: MODELS, count: MODELS.length });
+  const models = await getAllModels();
+  return jsonResponse({
+    models,
+    count: models.length,
+    customCount: models.filter((m) => m.custom).length,
+  });
 }

@@ -10,7 +10,7 @@ export function ModelCompareTable({
   defaultOpen?: boolean;
 }) {
   const rows = record.arguments
-    .map((a) => ({ model: MODEL_MAP[a.modelId], arg: a }))
+    .map((a) => ({ model: a.model ?? MODEL_MAP[a.modelId], arg: a }))
     .filter((r) => Boolean(r.model));
   if (rows.length === 0) return null;
   return (

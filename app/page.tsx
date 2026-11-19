@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AskWorkbench } from "@/components/AskWorkbench";
+import { DeleteRecordButton } from "@/components/DeleteRecordButton";
 import { getStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -29,22 +30,24 @@ export default async function HomePage() {
           </div>
           <div className="space-y-2">
             {recent.map((r) => (
-              <Link
-                key={r.id}
-                href={`/ledger/${r.id}`}
-                className="panel p-4 block hover:border-brand/40 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-[15px] text-ink truncate">{r.question}</p>
-                    <p className="text-xs text-stone-400 mt-1">
-                      {new Date(r.createdAt).toLocaleDateString("zh-CN")} ·{" "}
-                      {r.status === "reviewed" ? "已复盘" : "待复盘"}
-                    </p>
+              <div key={r.id} className="flex items-center gap-2">
+                <Link
+                  href={`/ledger/${r.id}`}
+                  className="panel p-4 flex-1 min-w-0 block hover:border-brand/40 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[15px] text-ink truncate">{r.question}</p>
+                      <p className="text-xs text-stone-400 mt-1">
+                        {new Date(r.createdAt).toLocaleDateString("zh-CN")} ·{" "}
+                        {r.status === "reviewed" ? "已复盘" : "待复盘"}
+                      </p>
+                    </div>
+                    <span className="text-brand text-sm shrink-0">→</span>
                   </div>
-                  <span className="text-brand text-sm shrink-0">→</span>
-                </div>
-              </Link>
+                </Link>
+                <DeleteRecordButton id={r.id} />
+              </div>
             ))}
           </div>
         </section>

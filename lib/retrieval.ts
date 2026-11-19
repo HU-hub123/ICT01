@@ -16,9 +16,13 @@ export interface RankedModel {
   matchedTags: string[];
 }
 
-export function retrieveCandidates(question: string, limit = 8): RankedModel[] {
+export function retrieveCandidates(
+  question: string,
+  limit = 8,
+  pool: ModelDef[] = MODELS,
+): RankedModel[] {
   const q = question.toLowerCase();
-  const ranked: RankedModel[] = MODELS.map((model) => {
+  const ranked: RankedModel[] = pool.map((model) => {
     const matchedTags = model.tags.filter((t) =>
       q.includes(t.toLowerCase()),
     );

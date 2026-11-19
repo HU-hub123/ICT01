@@ -9,7 +9,7 @@
  */
 
 import { randomUUID } from "crypto";
-import { MODEL_MAP } from "./models-data";
+import { getAllModels, toLite } from "./models-all";
 import { retrieveCandidates } from "./retrieval";
 import { callJSON, LLMError } from "./deepseek";
 import {
@@ -28,6 +28,7 @@ import type {
   LayerKind,
   MinimalAction,
   ModelArgument,
+  ModelDef,
   ModelSelection,
   PipelineStep,
   TaggedSentence,
@@ -149,7 +150,9 @@ export async function runAnalysis(
   };
 
   // ---------- 第 2 阶段：模型选择（检索 + LLM 选择，张力对兜底） ----------
-  const ranked = retrieveCandidates(question, 8);
+  const allModels = await getAllModels();
+  const modelMap: Record<string, ModelDef> = Object.fromEntries(allModels.map((m) => [m.id, m]));
+  const ranked = retrieveCandidates(question, 8, allModels);
   const candidates = ranked.map((r) => ({
     id: r.model.id,
     name: r.model.name,
@@ -157,8 +160,8 @@ export async function runAnalysis(
     role: r.model.role,
     definition: r.model.definition,
     tensionWith: r.model.tensionWith
-      .map((tid) => ({ id: tid, name: MODEL_MAP[tid]?.name ?? tid }))
-      .filter((t) => MODEL_MAP[t.id] !== undefined),
+      .map((tid) => ({ id: tid, name: modelMap[tid]?.name ?? tid }))
+      .filter((t) => modelMap[t.id] !== undefined),
   }));
   const selectionRaw = (await ctx.push(
     "model_select",
@@ -177,11 +180,12 @@ export async function runAnalysis(
     for (const s of rawSel) {
       const obj = s as Record<string, unknown>;
       const modelId = asString(obj?.modelId);
-      if (!MODEL_MAP[modelId]) continue;
+      if (!modelMap[modelId]) continue;
       selections.push({
         modelId,
         reason: asString(obj?.selectionReason, "模型适用于该问题的判断点"),
         source: "llm",
+        model: toLite(modelMap[modelId]),
       });
       if (selections.length >= 4) break;
     }
@@ -194,6 +198,7 @@ export async function runAnalysis(
           modelId: r.model.id,
           reason: `确定性兜底：检索命中 ${r.matchedTags.join("、") || "无关键词"}`,
           source: "library_tension",
+          model: toLite(r.model),
         });
       }
       if (selections.length >= 3) break;
@@ -202,25 +207,30 @@ export async function runAnalysis(
   // 张力对兜底：已选模型之间若无张力关系，按库内张力关系补入伙伴
   {
     const hasTension = selections.some((s) =>
-      MODEL_MAP[s.modelId].tensionWith.some((tid) => selections.some((x) => x.modelId === tid)),
+      (modelMap[s.modelId]?.tensionWith ?? []).some((tid) =>
+        selections.some((x) => x.modelId === tid),
+      ),
     );
     if (!hasTension) {
       for (const s of selections) {
-        const partnerId = MODEL_MAP[s.modelId].tensionWith.find(
-          (tid) => !selections.some((x) => x.modelId === tid),
+        const partnerId = (modelMap[s.modelId]?.tensionWith ?? []).find(
+          (tid) => !selections.some((x) => x.modelId === tid) && modelMap[tid],
         );
         if (partnerId) {
           selections.push({
             modelId: partnerId,
-            reason: `张力兜底：库内与「${MODEL_MAP[s.modelId].name}」存在张力关系，补入以保证真正交叉推演`,
+            reason: `张力兜底：库内与「${modelMap[s.modelId]?.name ?? s.modelId}」存在张力关系，补入以保证真正交叉推演`,
             source: "library_tension",
+            model: toLite(modelMap[partnerId]),
           });
           break;
         }
       }
     }
   }
-  const selectedModels = selections.map((s) => MODEL_MAP[s.modelId]);
+  const selectedModels = selections
+    .map((s) => modelMap[s.modelId])
+    .filter((m): m is ModelDef => Boolean(m));
 
   // ---------- 第 3 阶段：各模型独立推演 ----------
   const argsRaw = (await ctx.push(
@@ -234,22 +244,22 @@ export async function runAnalysis(
         ),
       ),
   )) as Record<string, unknown>;
-  let modelArgs: ModelArgument[] = [];
+  const modelArgs: ModelArgument[] = [];
   {
     const raw = Array.isArray(argsRaw?.arguments) ? argsRaw.arguments : [];
-    modelArgs = raw
-      .map((a) => {
-        const obj = a as Record<string, unknown>;
-        const modelId = asString(obj?.modelId);
-        if (!MODEL_MAP[modelId]) return null;
-        return {
-          modelId,
-          conclusion: asTagged(obj?.conclusion),
-          appliesWhen: asString(obj?.appliesWhen, MODEL_MAP[modelId].appliesWhen),
-          failsWhen: asString(obj?.failsWhen, MODEL_MAP[modelId].failsWhen),
-        };
-      })
-      .filter((a): a is ModelArgument => a !== null);
+    for (const a of raw) {
+      const obj = a as Record<string, unknown>;
+      const modelId = asString(obj?.modelId);
+      const def = modelMap[modelId];
+      if (!def) continue;
+      modelArgs.push({
+        modelId,
+        conclusion: asTagged(obj?.conclusion),
+        appliesWhen: asString(obj?.appliesWhen, def.appliesWhen),
+        failsWhen: asString(obj?.failsWhen, def.failsWhen),
+        model: toLite(def),
+      });
+    }
   }
   // 缺失的模型用库内定义兜底（结论为空时明确标注，不伪造）
   for (const m of selectedModels) {
@@ -261,6 +271,7 @@ export async function runAnalysis(
         ],
         appliesWhen: m.appliesWhen,
         failsWhen: m.failsWhen,
+        model: toLite(m),
       });
     }
   }
@@ -269,7 +280,7 @@ export async function runAnalysis(
   const tensionRaw = (await ctx.push(
     "tension",
     "交叉推演：显式找出模型冲突与证据检查点",
-    `输入：各模型独立结论（${modelArgs.map((a) => MODEL_MAP[a.modelId].name).join("、")}）`,
+    `输入：各模型独立结论（${modelArgs.map((a) => modelMap[a.modelId]?.name ?? a.modelId).join("、")}）`,
     () =>
       callWithRepair((note) =>
         tensionPrompt(
@@ -326,7 +337,7 @@ export async function runAnalysis(
           question,
           factsRecap,
           modelArgs
-            .map((a) => `${MODEL_MAP[a.modelId].name}：${a.conclusion.map((c) => c.text).join("；")}`)
+            .map((a) => `${modelMap[a.modelId]?.name ?? a.modelId}：${a.conclusion.map((c) => c.text).join("；")}`)
             .join("\n"),
           [
             conflicts.map((c) => `冲突：${c.statement}（成立条件：${c.resolutionCondition}）`).join("\n"),

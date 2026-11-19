@@ -11,7 +11,7 @@ import type { AnalysisRecord } from "@/lib/types";
  */
 export function DecisionGraph({ record }: { record: AnalysisRecord }) {
   const models = record.selections
-    .map((s) => MODEL_MAP[s.modelId])
+    .map((s) => s.model ?? MODEL_MAP[s.modelId])
     .filter((m): m is NonNullable<typeof m> => Boolean(m));
   if (models.length === 0) return null;
 

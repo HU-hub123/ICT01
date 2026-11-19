@@ -18,6 +18,7 @@ export interface LedgerStore {
   get(id: string): Promise<AnalysisRecord | null>;
   save(record: AnalysisRecord): Promise<AnalysisRecord>;
   addReview(id: string, review: Omit<ReviewResult, "reviewedAt">): Promise<AnalysisRecord | null>;
+  remove(id: string): Promise<boolean>;
 }
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -91,6 +92,16 @@ class FileLedgerStore implements LedgerStore {
       records[idx] = updated;
       await this.writeAll(records);
       return updated;
+    });
+  }
+
+  async remove(id: string): Promise<boolean> {
+    return this.mutate(async (records) => {
+      const idx = records.findIndex((r) => r.id === id);
+      if (idx < 0) return false;
+      records.splice(idx, 1);
+      await this.writeAll(records);
+      return true;
     });
   }
 }
