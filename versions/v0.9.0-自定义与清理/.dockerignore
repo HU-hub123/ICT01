@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+data
+versions
+.env
+.env.*
+.npmrc
+Dockerfile
+docker-compose.yml
+*.log
+*.md.tmp
