@@ -101,4 +101,20 @@ export class PostgresLedgerStore implements LedgerStore {
     const r = await this.db.query(`DELETE FROM ledger WHERE id = $1 RETURNING id`, [id]);
     return r.rows.length > 0;
   }
+
+  async removeMany(ids: string[]): Promise<number> {
+    const clean = [...new Set(ids.filter(Boolean))];
+    if (clean.length === 0) return 0;
+    const placeholders = clean.map((_, i) => `$${i + 1}`).join(", ");
+    const r = await this.db.query(
+      `DELETE FROM ledger WHERE id IN (${placeholders}) RETURNING id`,
+      clean,
+    );
+    return r.rows.length;
+  }
+
+  async clear(): Promise<number> {
+    const r = await this.db.query(`DELETE FROM ledger RETURNING id`);
+    return r.rows.length;
+  }
 }

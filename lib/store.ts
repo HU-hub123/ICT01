@@ -19,10 +19,15 @@ export interface LedgerStore {
   save(record: AnalysisRecord): Promise<AnalysisRecord>;
   addReview(id: string, review: Omit<ReviewResult, "reviewedAt">): Promise<AnalysisRecord | null>;
   remove(id: string): Promise<boolean>;
+  /** 批量删除，返回实际删除条数 */
+  removeMany(ids: string[]): Promise<number>;
+  /** 清空全部，返回删除条数 */
+  clear(): Promise<number>;
 }
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const FILE = path.join(DATA_DIR, "ledger.json");
+const LOCK = path.join(DATA_DIR, ".ledger.lock");
 
 class FileLedgerStore implements LedgerStore {
   private writeChain: Promise<void> = Promise.resolve();
@@ -44,11 +49,45 @@ class FileLedgerStore implements LedgerStore {
     await fs.rename(tmp, FILE);
   }
 
-  private mutate<T>(fn: (records: AnalysisRecord[]) => T): Promise<T> {
-    const run = this.writeChain.then(async () => {
-      const records = await this.readAll();
-      return fn(records);
-    });
+  /**
+   * 跨进程写锁：避免"两个服务器进程各读各写"导致丢失更新。
+   * 使用独占创建锁文件；超过 10 秒的陈旧锁会被清理；3 秒抢不到则降级继续（避免死锁）。
+   */
+  private async withLock<T>(fn: () => Promise<T>): Promise<T> {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    const deadline = Date.now() + 3000;
+    for (;;) {
+      try {
+        const handle = await fs.open(LOCK, "wx");
+        await handle.close();
+        break;
+      } catch (e) {
+        const code = (e as NodeJS.ErrnoException).code;
+        if (code !== "EEXIST") throw e;
+        try {
+          const st = await fs.stat(LOCK);
+          if (Date.now() - st.mtimeMs > 10_000) await fs.unlink(LOCK).catch(() => {});
+        } catch {
+          /* 锁文件刚被释放 */
+        }
+        if (Date.now() > deadline) break;
+        await new Promise((r) => setTimeout(r, 50));
+      }
+    }
+    try {
+      return await fn();
+    } finally {
+      await fs.unlink(LOCK).catch(() => {});
+    }
+  }
+
+  private mutate<T>(fn: (records: AnalysisRecord[]) => Promise<T> | T): Promise<T> {
+    const run = this.writeChain.then(() =>
+      this.withLock(async () => {
+        const records = await this.readAll();
+        return fn(records);
+      }),
+    );
     this.writeChain = run.then(() => undefined).catch(() => undefined);
     return run;
   }
@@ -102,6 +141,29 @@ class FileLedgerStore implements LedgerStore {
       records.splice(idx, 1);
       await this.writeAll(records);
       return true;
+    });
+  }
+
+  async removeMany(ids: string[]): Promise<number> {
+    const set = new Set(ids);
+    return this.mutate(async (records) => {
+      const before = records.length;
+      const kept = records.filter((r) => !set.has(r.id));
+      if (kept.length !== before) {
+        records.length = 0;
+        records.push(...kept);
+        await this.writeAll(records);
+      }
+      return before - kept.length;
+    });
+  }
+
+  async clear(): Promise<number> {
+    return this.mutate(async (records) => {
+      const n = records.length;
+      records.length = 0;
+      await this.writeAll(records);
+      return n;
     });
   }
 }

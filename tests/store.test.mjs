@@ -75,6 +75,14 @@ test("Postgres 账本：初始化 / 保存 / 列表 / 复盘 / 覆盖", async ()
     }),
     null,
   );
+
+  // 批量删除与清空
+  await store.save(makeRecord("r2"));
+  await store.save(makeRecord("r3"));
+  assert.equal(await store.removeMany(["r2", "missing"]), 1);
+  assert.equal((await store.list()).length, 2); // rec-1 + r3
+  assert.equal(await store.clear(), 2);
+  assert.equal((await store.list()).length, 0);
 });
 
 test("内存限流：同一 key 计数递增", async () => {
