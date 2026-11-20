@@ -45,6 +45,22 @@ function asStringArray(v: unknown): string[] {
   return v.map((x) => asString(x)).filter((s) => s.length > 0);
 }
 
+/** 去重 + 限量：把同类/重复条目压掉，保证输出简短 */
+function dedupeList(items: string[], max: number): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of items) {
+    const t = raw.trim();
+    if (!t) continue;
+    const key = t.replace(/[\s，。；、：:.,;()（）【】\[\]“”"']/g, "").slice(0, 36);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(t);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
 function asTagged(v: unknown): TaggedSentence[] {
   if (!Array.isArray(v)) return [];
   return v
@@ -144,8 +160,8 @@ export async function runAnalysis(
     )),
   )) as Record<string, unknown>;
   const factsRecap: FactsRecap = {
-    confirmedFacts: asStringArray(factsRaw?.confirmedFacts),
-    missingInfo: asStringArray(factsRaw?.missingInfo),
+    confirmedFacts: dedupeList(asStringArray(factsRaw?.confirmedFacts), 6),
+    missingInfo: dedupeList(asStringArray(factsRaw?.missingInfo), 5),
     coreJudgment: asString(factsRaw?.coreJudgment, question),
   };
 
@@ -307,7 +323,8 @@ export async function runAnalysis(
         resolutionCondition: asString(obj?.resolutionCondition),
       };
     })
-    .filter((c): c is ConflictPoint => c !== null && c.statement.length > 0);
+    .filter((c): c is ConflictPoint => c !== null && c.statement.length > 0)
+    .slice(0, 2);
   const checkpoints: EvidenceCheckpoint[] = (
     Array.isArray(tensionRaw?.checkpoints) ? tensionRaw.checkpoints : []
   )
@@ -323,7 +340,7 @@ export async function runAnalysis(
         : null;
     })
     .filter((c): c is EvidenceCheckpoint => c !== null)
-    .slice(0, 3);
+    .slice(0, 2);
   const agreementNote = asString(tensionRaw?.agreementNote);
 
   // ---------- 第 5 阶段：综合结论 + 最小行动 ----------
@@ -350,7 +367,7 @@ export async function runAnalysis(
         ).map((m, i) => (i === 1 && note ? { ...m, content: `${m.content}\n\n【修复要求】${note}` } : m)),
       ),
   )) as Record<string, unknown>;
-  const conclusion: TaggedSentence[] = asTagged(synthRaw?.conclusion);
+  const conclusion: TaggedSentence[] = asTagged(synthRaw?.conclusion).slice(0, 4);
   const maRaw = (synthRaw?.minimalAction ?? {}) as Record<string, unknown>;
   const minimalAction: MinimalAction = {
     action: asString(maRaw?.action, "（模型未给出可解析的最小行动，请结合上文自行拟定下一步）"),
