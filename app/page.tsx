@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AskWorkbench } from "@/components/AskWorkbench";
+import { WorkbenchTabs } from "@/components/WorkbenchTabs";
 import { DeleteRecordButton } from "@/components/DeleteRecordButton";
 import { getStore } from "@/lib/store";
 
@@ -18,7 +18,7 @@ export default async function HomePage() {
         </p>
       </div>
 
-      <AskWorkbench />
+      <WorkbenchTabs />
 
       {recent.length > 0 && (
         <section className="space-y-2">
