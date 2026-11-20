@@ -12,9 +12,9 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
       <div className="space-y-1">
-        <h1 className="serif text-2xl font-bold text-ink">想清楚一件事</h1>
+        <h1 className="serif text-2xl font-bold text-ink">你现在在犹豫什么？</h1>
         <p className="text-sm text-stone-500">
-          说出一个正在犹豫的问题。系统会把事实、缺口和几个角度摊开，最后收束成一个可以行动的判断。
+          说出来就好。我会先把已知和未知分开，再从几个不同角度帮你看一遍，最后落到一个能马上做的动作。
         </p>
       </div>
 

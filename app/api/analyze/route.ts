@@ -1,5 +1,6 @@
 import { llmStatus } from "@/lib/deepseek";
 import { jsonResponse } from "@/lib/http";
+import { redact, sanitizeLLM, type LLMConfig } from "@/lib/llm";
 import { runAnalysis } from "@/lib/pipeline";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { HistoryTurn } from "@/lib/types";
@@ -10,17 +11,23 @@ export const maxDuration = 300;
 /**
  * POST /api/analyze —— 核心推演接口（SSE 流式返回）
  *
+ * body: { question, extraFacts?, history?, llm? }
+ * llm 为用户自带的 OpenAI 兼容模型配置（浏览器 localStorage → 每次请求携带），
+ * 只在本次请求内使用，不落盘、不写日志。
+ *
  * 事件类型：
  * - { type: "status", message }  阶段状态
  * - { type: "step", step }       某个阶段完成（含输入摘要与输出，供溯源回放）
  * - { type: "record", record }   完整分析记录（认知账本快照）
- * - { type: "error", message }   明确错误（绝不伪造输出）
- *
- * 防死循环：流水线为固定五阶段顺序执行（见 lib/pipeline.ts），
- * 每个阶段最多 2 次模型调用（1 正常 + 1 修复），无迭代循环。
+ * - { type: "error", message }   明确错误（绝不伪造输出；密钥已脱敏）
  */
 export async function POST(req: Request) {
-  let body: { question?: string; extraFacts?: string; history?: HistoryTurn[] };
+  let body: {
+    question?: string;
+    extraFacts?: string;
+    history?: HistoryTurn[];
+    llm?: unknown;
+  };
   try {
     body = await req.json();
   } catch {
@@ -30,11 +37,19 @@ export async function POST(req: Request) {
   if (!question) {
     return jsonResponse({ error: "问题不能为空" }, 400);
   }
-  if (!llmStatus().configured) {
+  const hasLLMField = body?.llm !== undefined && body?.llm !== null;
+  const llm: LLMConfig | null = hasLLMField ? sanitizeLLM(body.llm) : null;
+  if (hasLLMField && !llm) {
+    return jsonResponse(
+      { error: "模型配置不完整：需要同时填写接口地址（http/https）、API Key 和模型名。" },
+      400,
+    );
+  }
+  if (!llm && !llmStatus().configured) {
     return jsonResponse(
       {
         error:
-          "未配置 DEEPSEEK_API_KEY：请在项目根目录 .env 中填入真实的 DeepSeek API Key 后重启服务（.env 不会被提交到 Git）。",
+          "还没有可用的模型：请点右上角「模型设置」填你自己的模型（地址 + Key + 模型名），或让部署者在 .env 里配置 DEEPSEEK_API_KEY。",
       },
       500,
     );
@@ -71,13 +86,12 @@ export async function POST(req: Request) {
               history: Array.isArray(body?.history) ? body.history.slice(-5) : [],
             },
             (step) => send({ type: "step", step }),
+            llm,
           );
           send({ type: "record", record });
         } catch (e) {
-          send({
-            type: "error",
-            message: e instanceof Error ? e.message : String(e),
-          });
+          const msg = e instanceof Error ? e.message : String(e);
+          send({ type: "error", message: llm ? redact(msg, llm.apiKey) : msg });
         } finally {
           try {
             controller.close();

@@ -12,6 +12,7 @@ import { randomUUID } from "crypto";
 import { getAllModels, toLite } from "./models-all";
 import { retrieveCandidates } from "./retrieval";
 import { callJSON, LLMError } from "./deepseek";
+import type { LLMConfig } from "./llm";
 import {
   argumentsPrompt,
   factsPrompt,
@@ -123,16 +124,17 @@ function makeContext(
 /** 模型输出不符合 JSON 契约时，用错误信息做一次修复调用 */
 async function callWithRepair(
   build: (repairNote?: string) => Parameters<typeof callJSON>[0],
+  llm?: LLMConfig | null,
 ): Promise<unknown> {
   try {
-    return await callJSON(build());
+    return await callJSON(build(), undefined, llm);
   } catch (e) {
     if (e instanceof LLMError) {
       // 网络/密钥错误直接抛出（不伪造）
-      if (/HTTP \d|未配置|网络|fetch|abort|超时/i.test(e.message)) throw e;
+      if (/HTTP \d|未配置|网络|fetch|abort|超时|API Key/i.test(e.message)) throw e;
     }
     const note = `上一次输出无法解析为要求的 JSON，请严格按 JSON 契约重新输出，不要输出任何非 JSON 文字。`;
-    return callJSON(build(note));
+    return callJSON(build(note), undefined, llm);
   }
 }
 
@@ -148,6 +150,7 @@ export async function runAnalysis(
     history?: HistoryTurn[];
   },
   onStep?: (step: PipelineStep) => void,
+  llm?: LLMConfig | null,
 ): Promise<AnalysisRecord> {
   const { question, extraFacts, history = [] } = input;
   const steps: PipelineStep[] = [];
@@ -157,7 +160,7 @@ export async function runAnalysis(
   const factsRaw = (await ctx.push("facts_recap", "事实收口：区分事实与缺失信息", "输入：问题 + 补充信息 + 追问历史（含上一轮系统回答摘要）", () =>
     callWithRepair((note) => factsPrompt(question, extraFacts, history).map((m, i) =>
       i === 1 && note ? { ...m, content: `${m.content}\n\n【修复要求】${note}` } : m,
-    )),
+    ), llm),
   )) as Record<string, unknown>;
   const factsRecap: FactsRecap = {
     confirmedFacts: dedupeList(asStringArray(factsRaw?.confirmedFacts), 6),
@@ -188,6 +191,7 @@ export async function runAnalysis(
         selectionPrompt(question, factsRecap, candidates).map((m, i) =>
           i === 1 && note ? { ...m, content: `${m.content}\n\n【修复要求】${note}` } : m,
         ),
+        llm,
       ),
   )) as Record<string, unknown>;
   const selections: ModelSelection[] = [];
@@ -258,6 +262,7 @@ export async function runAnalysis(
         argumentsPrompt(question, factsRecap, selectedModels).map((m, i) =>
           i === 1 && note ? { ...m, content: `${m.content}\n\n【修复要求】${note}` } : m,
         ),
+        llm,
       ),
   )) as Record<string, unknown>;
   const modelArgs: ModelArgument[] = [];
@@ -307,6 +312,7 @@ export async function runAnalysis(
             conclusion: a.conclusion.map((c) => c.text).join("；") || "（无结论）",
           })),
         ).map((m, i) => (i === 1 && note ? { ...m, content: `${m.content}\n\n【修复要求】${note}` } : m)),
+        llm,
       ),
   )) as Record<string, unknown>;
   const conflicts: ConflictPoint[] = (
@@ -365,6 +371,7 @@ export async function runAnalysis(
             .join("\n"),
           history,
         ).map((m, i) => (i === 1 && note ? { ...m, content: `${m.content}\n\n【修复要求】${note}` } : m)),
+        llm,
       ),
   )) as Record<string, unknown>;
   const conclusion: TaggedSentence[] = asTagged(synthRaw?.conclusion).slice(0, 4);

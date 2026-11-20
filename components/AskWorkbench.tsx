@@ -1,8 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { AnalysisRecord, HistoryTurn, PipelineStep } from "@/lib/types";
+import {
+  loadActiveId,
+  loadModels,
+  persistActiveId,
+  persistModels,
+  type SavedModel,
+} from "@/lib/client-models";
+import { ModelSettings } from "./ModelSettings";
 import { ResultModules } from "./ResultModules";
 import { SideOracle } from "./SideOracle";
 
@@ -30,7 +38,25 @@ export function AskWorkbench() {
   const [saving, setSaving] = useState(false);
   const [isFollowUp, setIsFollowUp] = useState(false);
   const [parentSavedId, setParentSavedId] = useState<string | null>(null);
+  const [models, setModels] = useState<SavedModel[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    setModels(loadModels());
+    setActiveId(loadActiveId());
+  }, []);
+
+  function changeModels(list: SavedModel[]) {
+    setModels(list);
+    persistModels(list);
+  }
+
+  function changeActive(id: string | null) {
+    setActiveId(id);
+    persistActiveId(id);
+  }
 
   async function run(q: string, followUp: boolean) {
     const trimmed = q.trim();
@@ -42,9 +68,10 @@ export function AskWorkbench() {
     setRecord(null);
     setSavedId(null);
     setSavedMsg("");
-    setStatus("推演开始：事实收口");
+    setStatus("正在理清…");
     const controller = new AbortController();
     abortRef.current = controller;
+    const active = models.find((m) => m.id === activeId);
     let rec: AnalysisRecord | null = null;
     try {
       const res = await fetch("/api/analyze", {
@@ -54,6 +81,9 @@ export function AskWorkbench() {
           question: trimmed,
           extraFacts: followUp ? undefined : extraFacts.trim() || undefined,
           history: followUp ? history : [],
+          llm: active
+            ? { baseUrl: active.baseUrl, apiKey: active.apiKey, model: active.model }
+            : undefined,
         }),
         signal: controller.signal,
       });
@@ -98,7 +128,7 @@ export function AskWorkbench() {
       if (followUp) setChain((c) => [...c, rec!]);
     } catch (e) {
       if (controller.signal.aborted) {
-        setError("已取消推演（该次模型调用已中止）");
+        setError("已取消（这次模型调用已中止）");
       } else {
         setError(e instanceof Error ? e.message : String(e));
       }
@@ -135,6 +165,32 @@ export function AskWorkbench() {
 
   return (
     <div className="space-y-4">
+      {/* 模型选择 */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <label className="flex items-center gap-2 text-xs text-stone-500">
+          用哪个模型来想
+          <select
+            value={activeId ?? ""}
+            onChange={(e) => changeActive(e.target.value || null)}
+            className="px-2.5 py-1.5 text-xs border border-line rounded-xl bg-white text-ink"
+          >
+            <option value="">默认（服务端配置）</option>
+            {models.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(true)}
+          className="text-xs px-3 py-1.5 rounded-full border border-line text-stone-600 hover:border-stone-300"
+        >
+          接入我的模型
+        </button>
+      </div>
+
       {/* 输入区 */}
       <div className="panel p-5 space-y-3">
         <label className="block">
@@ -167,7 +223,7 @@ export function AskWorkbench() {
             onClick={() => run(question, false)}
             className="btn-brand px-4 py-2 text-sm disabled:opacity-50"
           >
-            {phase === "running" ? "推演中…" : "开始推演"}
+            {phase === "running" ? "正在理清…" : "帮我理一理"}
           </button>
           <span className="text-xs text-stone-400">试试：</span>
           {DEMO_QUESTIONS.map((d) => (
@@ -212,7 +268,7 @@ export function AskWorkbench() {
       {/* 错误 */}
       {phase === "error" && (
         <div className="panel p-5 border-rose-200 bg-rose-50/50 space-y-2">
-          <p className="text-sm font-medium text-rose-700">推演失败（已如实报错，没有编造结果）</p>
+          <p className="text-sm font-medium text-rose-700">这次没跑通（如实报错，没有编造结果）</p>
           <p className="text-sm text-rose-600 break-all">{error}</p>
           <button
             type="button"
@@ -286,6 +342,15 @@ export function AskWorkbench() {
           <SideOracle question={record.question} />
         </div>
       )}
+
+      <ModelSettings
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        models={models}
+        activeId={activeId}
+        onChange={changeModels}
+        onActiveChange={changeActive}
+      />
     </div>
   );
 }
